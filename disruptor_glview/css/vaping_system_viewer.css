@@ -1,0 +1,142 @@
+@font-face {
+	font-family: "DisrupterLCDFont";
+	src: url("chesstype.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
+}
+.disrupter-view-wrapper{
+	font-family: "Open Sans",sans-serif;
+	position: relative;
+	margin : 10px auto;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-o-border-radius: 5px;
+	-ms-border-radius: 5px;
+	border-radius: 5px;
+	box-sizing: border-box;
+	padding: 2px;
+	box-sizing: content-box;
+}
+.disrupter-view-wrapper canvas{
+	border: 1px solid #CCC;
+	border-bottom: 0;
+	display: block;
+	-webkit-border-radius: 5px 5px 0 0;
+	-moz-border-radius:  5px 5px 0 0;
+	-o-border-radius:  5px 5px 0 0;
+	-ms-border-radius:  5px 5px 0 0;
+	border-radius:  5px 5px 0 0;
+}
+.disrupter-view-wrapper .step-title{
+	color: #656565;
+    font-family: "Open Sans",sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 5px auto;
+    padding: 0;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.disrupter-view-wrapper .disrupter-view-canvas{
+	
+	background-color: #F9F9F9;
+	position: relative;
+}
+
+.disrupter-view-wrapper .loading-overlay{
+	position: absolute;
+	display: block;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	text-align: center; 
+	background: #000;
+	z-index: 100;
+}
+.disrupter-view-wrapper .loading-overlay .progress-bar{
+	width: 50%;
+	border: 1px solid #FFF;
+	margin: -2px auto;
+	top: 50%;
+	position: relative;
+}
+.disrupter-view-wrapper .loading-overlay .progress-bar .progress-indicator{
+	margin: 1px;
+	height: 2px;
+	background: #FFF;
+}
+
+.disrupter-view-wrapper .step-button-holder{
+	position: relative;
+	bottom: 0; left: 0;
+	height: 44px;
+	background-color: #000;
+	width: 100%;
+	display: block;
+	-webkit-border-radius: 0 0 5px 5px;
+	-moz-border-radius:  0 0 5px 5px;
+	-o-border-radius: 0 0 5px 5px;
+	-ms-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+	border: 1px solid #000;
+}
+.disrupter-view-wrapper .step-button-holder .inner-holder{
+	display: block;
+	margin:0;
+	padding:0;
+	position: relative;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	-webkit-border-radius:inherit;
+	-moz-border-radius:  inherit;
+	-o-border-radius:inherit;
+	-ms-border-radius: inherit;
+	border-radius:inherit;
+	white-space: nowrap;
+}
+.disrupter-view-wrapper .step-button{
+	height: 44px;
+	color: #FFF;
+	text-align: center;
+	line-height: 44px;
+	font-size: 13px;
+	/*font-weight: bold;*/
+	position : relative;
+	margin: 0px; 
+	cursor: pointer;
+	padding: 0px;
+	user-select: none;
+	background-image: url('img/step-btn-bg.png');
+	display: inline-block;
+	border-left: 1px solid #1F1F1F;
+	width: 25%;
+}
+.disrupter-view-wrapper .step-button .step-no{
+	font-weight: bold;
+}
+
+.disrupter-view-wrapper .step-button.setp4-logo:AFTER{
+	background-image: url("img/innokin-logo.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    content: " ";
+    display: block;
+    height: 44px;
+    left: 50%;
+    margin: 0 0 0 -24px;
+    position: absolute;
+    top: 0;
+    width: 48px;
+}
+.disrupter-view-wrapper .step-button.active, .disrupter-view-wrapper .step-button:HOVER{
+	background-color: #000;
+	background-image: none;
+}
