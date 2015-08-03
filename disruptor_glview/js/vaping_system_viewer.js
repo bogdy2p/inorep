@@ -938,7 +938,7 @@ var _InnokinDisrupterViewer = function () {
             if (part.name === 'olcd') {
                 var material = new THREE.MeshPhongMaterial(part.material);
                 imp_obj.traverse(function (child) {
-                    
+
                     if (child instanceof THREE.Mesh) {
                         child.material = material;
 //                        var box = new THREE.Box3().setFromObject(child);
@@ -1572,8 +1572,60 @@ var _InnokinDisrupterViewer = function () {
         }
     }
 
+    this.generalStartScreen = function () {
+        console.log(scene);
+        var small_screen_already_exists = scene.getObjectByName('smallScreen');
+        if (!small_screen_already_exists) {
+            screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
+            screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+            planeGeometry1 = new THREE.PlaneBufferGeometry(45, 20, 30, 30);
+            planeGeometry2 = new THREE.PlaneBufferGeometry(112, 50, 30, 30);
+            planeMaterial = new THREE.MeshBasicMaterial({map: screenDynamicTexture.texture});
+            ScreenPlane = new THREE.Mesh(planeGeometry1, planeMaterial);
+            ScreenPlane.name = 'smallScreen';
+            LargeScreen = new THREE.Mesh(planeGeometry2, planeMaterial);
+            LargeScreen.name = 'largeScreen';
+            groupMecanism = scene.getObjectByName('disrupter');
+            if (groupMecanism) {
+                console.log("THERE IS A GRUPMECANISM");
+                groupMecanism.add(ScreenPlane);
+            }
+            ScreenPlane.position.x = -32.8; // DEPTH BIGGER IS INSIDE
+            ScreenPlane.position.x = -32.8; // DEPTH BIGGER IS INSIDE
+            ScreenPlane.position.z = -3.5; // LEFT RIGHT (smaller is LEFT
+            ScreenPlane.position.y = 26.5; // TOP BOTTOM
+            ScreenPlane.rotation.z = Math.PI / 2;
+            ScreenPlane.rotation.y = -Math.PI / 2;
+            screenDynamicTexture.texture.needsUpdate = true;
+            screenDynamicTexture.clear('#667788');
+            ScreenPlane.scale.x = 0.5;
+            ScreenPlane.scale.y = 0.5;
+            ScreenPlane.scale.z = 0.5;
+        }
+    }
+
+    this.generalStopScreen = function () {
+        var small_screen_already_exists = scene.getObjectByName('smallScreen');
+        if (small_screen_already_exists) {
+            setTimeout(function () {
+                groupMecanism = scene.getObjectByName('disrupter');
+                groupMecanism.remove(ScreenPlane);
+            }, 10);
+        }
+    }
+
+
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
+
+
+
+
+
+
+
+
+
 //var InnokinLCD = function (width, height, scene) {
 ////    console.log(scene);
 //
