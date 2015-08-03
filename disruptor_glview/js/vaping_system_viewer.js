@@ -140,6 +140,13 @@ var _InnokinDisrupterViewer = function () {
     var device_state = 'watt';
     var startButtonCounter = 0;
     var startButtonCounter2 = 0;
+    //SMOKE PART
+    var playSmoke = null;
+    var removeSmoke = null;
+    var smoking = false;
+    var ammount_of_ms_to_press = 1500;
+    var resetTimeout = null;
+//END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
     {
@@ -1541,8 +1548,8 @@ var _InnokinDisrupterViewer = function () {
         setStep(newstep)
     };
     this.start_smoke = function () {
-        if (InnokinDisrupterViewer.current_wattage) {
-            startSmoking(InnokinDisrupterViewer.current_wattage);
+        if (device_status = "ON") {
+            startSmoking(device_variables.watt);
         }
     };
     this.stop_smoke = function () {
@@ -1552,11 +1559,11 @@ var _InnokinDisrupterViewer = function () {
     this.refresh_smoke = function () {
         if (smoking) {
             stopSmoking();
-            startSmoking(InnokinDisrupterViewer.current_wattage);
+            startSmoking(device_variables.watt);
         }
     }
 
-    function startSmoking(currentWattage) {
+    function startSmoking(wattage) {
         if (!smoking) {
             particleGroup = new SPE.Group({
                 texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
@@ -1576,9 +1583,12 @@ var _InnokinDisrupterViewer = function () {
                 colorEnd: new THREE.Color(0xFFFFFF),
                 sizeStart: 5,
                 sizeEnd: 200,
-                particleCount: currentWattage * 10 / 3,
+                particleCount: wattage * 3 / 20,
             });
             particleGroup.addEmitter(emitter);
+            //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
+            ///
+            
             scene.add(particleGroup.mesh);
             smoking = true;
         }
@@ -1782,6 +1792,30 @@ var _InnokinDisrupterViewer = function () {
         }
     }
 
+    function startButtonClickedDeviceStarted() {
+        console.log("Device already started. startButtonClickedDeviceStarted();");
+
+        if (!smoking) {
+            playSmoke = setTimeout(function () {
+                startSmoking(device_variables.watt);
+            }, ammount_of_ms_to_press);
+        } else {
+            removeSmoke = setTimeout(function () {
+                console.log("SHOULD REMOVE PARTICLES OF SMOKE HERE");
+                scene.remove(particleGroup.mesh);
+//            particleGroup = null;
+//            emitter = null;
+                smoking = false;
+            }, ammount_of_ms_to_press);
+        }
+
+
+
+
+
+    }
+
+
     function plusButtonClick() {
 
         var buttonSmall1 = scene.getObjectByName('up_button');
@@ -1859,6 +1893,26 @@ var _InnokinDisrupterViewer = function () {
 //        clearTimeout(removeSmoke);
     }
 
+    function refreshDisruptorInformations() {
+        var existingSmallScreen = scene.getObjectByName('smallScreen');
+        var newScreenDynamicTexture = new THREEx.DynamicTexture(400, 200);
+        newScreenDynamicTexture.name = 'screenDynamicTexture';
+//        newScreenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+        newScreenDynamicTexture.texture.needsUpdate = true;
+        newScreenDynamicTexture.clear('#667788');
+        drawAllFourOnTexture(newScreenDynamicTexture, device_state);
+        var newPlaneMaterial = new THREE.MeshBasicMaterial({
+            map: newScreenDynamicTexture.texture
+        });
+        existingSmallScreen.material = newPlaneMaterial;
+    }
+
+    function resetParticlesWithNewInfo() {
+        if (smoking) {
+            scene.remove(particleGroup.mesh);
+            start_smoke();
+        }
+    }
 
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
