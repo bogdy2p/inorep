@@ -16,6 +16,11 @@
 	box-sizing: border-box;
 	padding: 2px;
 	box-sizing: content-box;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 .disrupter-view-wrapper canvas{
 	border: 1px solid #CCC;
@@ -139,4 +144,54 @@
 .disrupter-view-wrapper .step-button.active, .disrupter-view-wrapper .step-button:HOVER{
 	background-color: #000;
 	background-image: none;
+}
+.disrupter-view-wrapper .step4-tool-button{
+	width: 48px;
+	height: 48px;
+	display: block;
+	position: absolute;
+	z-index: 10;
+	background-color: rgba(255,255,255,0.5);
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	box-shadow: 0 0 3px rgba(0,0,0,0.5);
+	background-position: center center;
+	background-repeat: no-repeat;
+	user-select: none;
+	cursor: pointer;
+	top: 30px;
+	right: 10px;
+}
+.disrupter-view-wrapper .step4-tool-button.zoom-oled{
+	background-image: url('img/innokin-logo.png');
+	top: 100px;
+}
+.disrupter-view-wrapper .step4-tool-button.zoom-full{
+	background-image: url('img/free-rotate-icon.png');
+}
+.disrupter-view-wrapper .viewer-color-swatches{
+	position: absolute;
+	bottom: 60px;
+	display: inline-block;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.disrupter-view-wrapper .viewer-color-swatches .part-title{
+	color: #666;
+    display: block;
+    float: left;
+    font-size: 18px;
+    line-height: 22px;
+    position: relative;
+    text-transform: uppercase;
+}
+.disrupter-view-wrapper .viewer-color-swatches .color-swatch{
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	position: relative;
+	margin: 0 6px;
+	cursor: pointer;
+	background-color: #FFF;
+	border: 1px solid #CCC;
 }

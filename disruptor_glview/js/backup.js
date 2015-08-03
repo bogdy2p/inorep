@@ -1,40 +1,27 @@
 var _InnokinDisrupterViewer = function(){
 	
-	var debug_mode = false;
 	var scene,camera,renderer, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [],disrupter_groups = {}, current_pick_set, current_choice= {disrupter : null, innocell: null, coil : null}, disrupter, loadingOverlay;
-	var prev_picked = null;
-	var reached_step4 = debug_mode;
+	
+	var debug_mode = true;
 	var remainingToLoad = 0;
 	var totalToLoad = 0;
 	var resource_base = './disruptor_glview/resources/';
-	var sounds = {
-		slide_in : {src : ['sounds/disrupter_lock.mp3','sounds/disrupter_lock.ogg'], obj : null}, 
-		slide_out : {src : ['sounds/disrupter_unlock.mp3','sounds/disrupter_unlock.ogg'], obj : null}, 
-	};
 	
 	var urls = [ resource_base + "texture/envmap3.png",  resource_base + "texture/envmap3.png",
 				 resource_base + "texture/envmap.png",  resource_base + "texture/envmap2.png",
 				 resource_base + "texture/envmap3.png",  resource_base + "texture/envmap3.png" ];
-	var urls_cr = [ resource_base + "texture/envmap.png",  resource_base + "texture/envmap.png",
-				 resource_base + "texture/envmap.png",  resource_base + "texture/envmap.png",
-				 resource_base + "texture/envmap.png",  resource_base + "texture/envmap.png" ];
 
 	var textureCube = THREE.ImageUtils.loadTextureCube( urls);
 	textureCube.minFilter = THREE.LinearFilter;
-	var textureCubeCrome = THREE.ImageUtils.loadTextureCube( urls_cr);
-	textureCubeCrome.minFilter = THREE.LinearFilter;
 
 	var current_step = 1;
 	var from_step = 1;
-	
 	var config = {
 		width : 830, 
 		height : 500,
 		container : null
 	};
-	
 	var step_buttons = [];
-	var step4_tool_buttons = [];
 	
 	var materials = {
         blue_battery: {color: 0x005BBB, shininess: 30, specular: 0x0093EF, metal: true, side: THREE.DoubleSide},
@@ -44,25 +31,24 @@ var _InnokinDisrupterViewer = function(){
         pink_battery: {color: 0xd71f85, shininess: 30, specular: 0xFA58BB, metal: true, side: THREE.DoubleSide},
         purple_battery: {color: 0xAC47B2, shininess: 30, specular: 0xC860CE, metal: true, side: THREE.DoubleSide},
         green_battery: {color: 0x009B3A, shininess: 30, specular: 0x4BC293, metal: true, side: THREE.DoubleSide},
-		black_battery: {color: 0x111111, shininess: 30, specular: 0x3A393F, metal: true, side: THREE.DoubleSide},
+		black_battery: {color: 0x000000, shininess: 30, specular: 0x3A393F, metal: true, side: THREE.DoubleSide},
         
-        golden_material: {color: 0x746455, shininess: 30, specular: 0xE2D5C6, metal: true, side: THREE.DoubleSide},
+        golden_material: {color: 0xBFB4A6, shininess: 30, specular: 0xDCD1C4, metal: true, side: THREE.DoubleSide},
 		silver_material: {color: 0xB3B9C3, shininess: 30, specular: 0xDEDBE6, metal: true, side: THREE.DoubleSide},
-        black_material: {color: 0x111111, shininess: 30, specular: 0x3A393F, metal: true, side: THREE.DoubleSide},
+        black_material: {color: 0x000000, shininess: 30, specular: 0x3A393F, metal: true, side: THREE.DoubleSide},
         
         grey_metal: {color: 0xCCCCCC, shininess: 50, specular: 0xBBBBBB, metal: true, side: THREE.DoubleSide},
-        crome_metal: {color: 0xcccccc, shininess: 100, specular: 0xffffff, metal: true, side: THREE.DoubleSide, envMap: textureCubeCrome, combine: THREE.MultiplyOperation,reflectivity : 100},
         screws: {color: 0xCCCCCC, shininess: 50, specular: 0xAACCDD, metal: true, side: THREE.DoubleSide},
         connectors: {color: 0x9F8F53, shininess: 50, specular: 0xEAE0D7, metal: true, side: THREE.DoubleSide},
         texts: {color: 0x666666, shininess: 50, specular: 0xEAE0D7, metal: true, side: THREE.DoubleSide},
         logotexts: {color: 0xffffff},
-        black_plastic: {color: 0x111111, shininess: 10, specular: 0xEAE0D7, metal: false, side: THREE.DoubleSide},
+        black_plastic: {color: 0x000000, shininess: 10, specular: 0xEAE0D7, metal: false, side: THREE.DoubleSide},
         coil: {color: 0xCCCCCC, shininess: 50, specular: 0xAACCDD, metal: true, side: THREE.DoubleSide},
         coil_glass: {color: 0xffffff, shininess: 10, specular: 0xDDDDDD, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite : false},
         screen_transparent: {color: 0x009900, shininess: 10, specular: 0xFF00FF, transparent: true, opacity: 0.3, side: THREE.DoubleSide},
         plastic_transparent: {color: 0xffffff,specular:0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.40, reflectivity : 30, shininess: 80},
         plastic_powled: {color: 0xffffff,specular:0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.90, reflectivity : 5, shininess: 40},
-        plastic_black: {color: 0x111111, shininess: 50, specular: 0xffffff, side: THREE.DoubleSide},
+        plastic_black: {color: 0x000000, shininess: 50, specular: 0xffffff, side: THREE.DoubleSide},
 	};
 	
 	var disrupter_matreials = [materials.silver_material, materials.golden_material, materials.black_material];
@@ -82,7 +68,7 @@ var _InnokinDisrupterViewer = function(){
 			{model:'obj/disrupter_bottom_screws.obj',type:'obj', name : '', material : materials.screws},
 			{model:'obj/disrupter_ce_text.obj',type:'obj', name : '', material : materials.texts},
 			{model:'obj/lcd_glass.obj',type:'obj', name : '', material : materials.screen_transparent},
-			{model:'obj/power_button_led_ring.obj',type:'obj', name : 'power_led', material : materials.plastic_black},
+			{model:'obj/power_button_led_ring.obj',type:'obj', name : 'power_led', material : materials.plastic_powled},
 			{model:'obj/disrupter_shell.obj',type:'obj', name : 'mod_shell', material : disrupter_matreials[0]},
 			{model:'obj/power_button.obj',type:'obj', name : 'startbutton', material : materials.silver_material},
 			{model:'obj/up_button.obj',type:'obj', name : 'up_button', material : materials.silver_material},
@@ -106,12 +92,11 @@ var _InnokinDisrupterViewer = function(){
 			],
 		isub_coil02ohm : 
 			[
-			//{model:'obj/coil.obj',type:'obj', name : '', material :  materials.grey_metal}, //original coil
-			//{model:'obj/coil_glass.obj',type:'obj', name : 'coil_glass', material : materials.coil_glass} //original coil glass
-			{model:'obj/coil2.obj',type:'obj', name : '', material :  materials.crome_metal}, //centered coil
-			{model:'obj/coil2_glass.obj',type:'obj', name : 'coil_glass', material : materials.coil_glass} //centered coil glass
+			{model:'obj/coil02.obj',type:'obj', name : '', material :  materials.grey_metal},
+			{model:'obj/coil02_glass.obj',type:'obj', name : 'coil_glass', material : materials.coil_glass}
 			],
 		tabletop : [
+			//{model:'obj/carousel.obj',type:'obj', name : 'carousel', material : materials.plastic_transparent}
 			{model:'obj/carousel_top.obj',type:'obj', name : 'carousel', material : materials.plastic_transparent},
 			{model:'obj/carousel_bottom.obj',type:'obj', name : 'carousel', material : materials.black_material},
 			]
@@ -149,10 +134,19 @@ var _InnokinDisrupterViewer = function(){
 	window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || function(requestId){clearTimeout(requestId);};
 	
 	var animations = {
-		popout_object : function(obj, target_y){
-			new TWEEN.Tween(obj.position).to({
-					y : target_y
-			},50).start();
+		coil_flyin : function(){
+			disrupter_groups['isub_coil02ohm'].position.set(0,200,0);
+			new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
+					y : 0
+				},1500).start();
+			
+		},
+		coil_flyout : function(){
+			disrupter_groups['isub_coil02ohm'].position.set(0,0,0);
+			
+			new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
+					y : 200
+				},1500).start();
 		},
 		coil_fadein : function(){
 			disrupter_groups['isub_coil02ohm'].rotation.set(0,0,0);
@@ -182,6 +176,31 @@ var _InnokinDisrupterViewer = function(){
 				}
 			);
 		},
+		innocell_flyin : function(){
+			resetDisrupterTransforms();
+			disrupter_groups['innocell'].position.x = -30;
+			disrupter_groups['innocell'].position.y = 400;
+			new TWEEN.Tween(disrupter_groups['innocell'].position).to({
+					y : 0
+				},1000).start();
+		},
+		innocell_flyout : function(){
+			resetDisrupterTransforms();
+			disrupter_groups['innocell'].position.x = -30;
+			new TWEEN.Tween(disrupter_groups['innocell'].position).to({
+					y : 400
+				},1000).start();
+		},
+		tabletop_rotate : function(left){
+			if(typeof (left) !== 'boolean') left = true;
+			var dir = left? 1 : -1;
+			if(disrupter_groups['tabletop']){
+				new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
+					y : disrupter_groups['tabletop'].rotation.y + (Math.PI / 4 * dir)
+				},500).easing(TWEEN.Easing.Circular.InOut).start();
+			}
+		},
+		
 		explode_disrupter : function(){
 			resetDisrupterTransforms();
 			disrupter_groups['innocell'].position.x = -30;
@@ -217,72 +236,6 @@ var _InnokinDisrupterViewer = function(){
 			cellout.chain(cellin);
 			cellout.start();
 		},
-		zoom_to_oled : function(){
-				var groupTween =  new TWEEN.Tween(disrupter.rotation).to({
-					z : -Math.PI / 2,
-					x : Math.PI / 2 ,
-					//y : Math.PI 
-				},800).start();
-				new TWEEN.Tween(disrupter.position).to({
-					x : -60,
-					z : -10,
-					y : 30
-
-				},800).start();
-				
-				//animate camera
-				new TWEEN.Tween(camera.position).to({
-					x : 12.75759306407929,
-					y : 70.2878973429858,
-					z : 113.82941043722535
-				}, 900).start();
-				new TWEEN.Tween(camera.rotation).to({
-					x : -0.14576356565046156,
-					y : -0.00023981239294456708,
-					z : -0.00003520560129255281
-				}, 900).start();
-				var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-					x : 12.792604357404935,
-					y : 49.08249611245189,
-					z : -30.61686786871972
-				}, 900);
-				ctw.onComplete(function(){orbitcntrl.update();});
-				ctw.start();
-							
-		},
-		zoom_to_fullview : function(){
-				var groupTween =  new TWEEN.Tween(disrupter.rotation).to({
-					z : 0,
-					x : 0 ,
-					y : 0 
-				},800).start();
-				new TWEEN.Tween(disrupter.position).to({
-					x : 0,
-					z : 0,
-					y : 0
-
-				},800).start();
-				
-				//animate camera
-				new TWEEN.Tween(camera.position).to({
-					x : -144.20119763765334,
-					y : 111.2972966087502,
-					z : 121.55749190834881
-				}, 900).start();
-				new TWEEN.Tween(camera.rotation).to({
-					x : -0.2854704053759189,
-					y : -0.8427679017865717,
-					z : -0.2156764559473396
-				}, 900).start();
-				var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-					x : 11.859650548162842,
-					y : 72.12312221743433,
-					z : -11.921155841890096
-				}, 900);
-				ctw.onComplete(function(){orbitcntrl.update();});
-				ctw.start();
-							
-		},
 		step : {
 			1 : {
 				'in' :	function(cb){
@@ -290,7 +243,7 @@ var _InnokinDisrupterViewer = function(){
 					var delay = 800 / steps[1].clones.length;
 					var last = steps[1].clones.length - 1;
 					for(var ci = 0; ci < steps[1].clones.length; ci++){
-						steps[1].clones[ci].position.y = 400;
+						steps[1].clones[ci].position.y = 300;
 						steps[1].clones[ci].rotation.y = 0;
 						new TWEEN.Tween(steps[1].clones[ci].rotation).to({y : Math.PI / 4},delay).delay(ci * delay).start();
 						var tw = new TWEEN.Tween(steps[1].clones[ci].position).to({y : 0},delay).delay(ci * delay);
@@ -300,179 +253,234 @@ var _InnokinDisrupterViewer = function(){
 						}
 						tw.start();
 					}
-					
-					//animate camera
-					new TWEEN.Tween(camera.position).to({
-						x : 7.4252,
-						y : 84.2356,
-						z :  163.364
-					}, 800).start();
-					new TWEEN.Tween(camera.rotation).to({
-						x : -0.1473,
-						y : 0.04493,
-						z :  0.00666
-					}, 800).start();
-					var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-						x : 0,
-						y : 60,
-						z : 0
-					}, 800);
-					ctw.onComplete(function(){orbitcntrl.update();});
-					ctw.start();
 				},		
 				'out' :	 function(cb){
 					var delay = 1000 / steps[1].clones.length;
 					var last = steps[1].clones.length - 1;
-					
-					var skip = steps[1].clones.indexOf(current_choice['disrupter']);
-					
-					var clones = steps[1].clones.slice(0);
-					
-					var dmul = 0;
-					if(skip > -1){
-						new TWEEN.Tween(steps[1].clones[skip].rotation).to({y :0},delay).start();
-						new TWEEN.Tween(steps[1].clones[skip].position).to({y : 400},delay).start();
-						clones.splice(skip,1);
-						dmul = 1;
-					}
-					while(clones.length){
-						var cln = clones.shift();
-						new TWEEN.Tween(cln.rotation).to({y :0},delay).delay(dmul * delay).start();
-						var tw = new TWEEN.Tween(cln.position).to({y : 400},delay).delay(dmul * delay);
-						dmul++;
-						if((typeof(cb) == 'function') && !clones.length){
-							tw.onComplete(cb);
-						}
-						tw.start();
-					}
-				}		
-			},
-			2 : {
-				'in' :	function(cb){
-					var duration = 1500;
-					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
-							y : disrupter_groups['tabletop'].rotation.y - (2 * Math.PI)
-						},duration);
-					
-					if(typeof(cb) == 'function'){
-						tw.onComplete(cb);
-					}
-					tw.start();
-					
-					var delay = duration / steps[2].clones.length;
-					for(var ci = 0; ci < steps[2].clones.length; ci++){
-						steps[2].clones[ci].position.y = 300;
-						new TWEEN.Tween(steps[2].clones[ci].position).to({
-							y : 21
-						},delay).delay(ci * delay).start();
-					}
-					//animate camera
-					new TWEEN.Tween(camera.position).to({
-						x : 2.13455,
-						y : 178.7043,
-						z : 281.966
-					}, duration).start();
-					new TWEEN.Tween(camera.rotation).to({
-						x : -0.39847,
-						y : 0.006977,
-						z : 0.00293723
-					}, duration).start();
-					var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-						x : 0,
-						y : 60,
-						z : 0
-					}, duration);
-					ctw.onComplete(function(){orbitcntrl.update();});
-					ctw.start();
-				},	
-				'out' :	function(cb){
-					var duration = 1500;
-					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
-							y : disrupter_groups['tabletop'].rotation.y + (2 * Math.PI)
-						},duration);
-					
-					if(typeof(cb) == 'function'){
-						tw.onComplete(cb);
-					}
-					tw.start();
-					
-					var delay = duration / steps[2].clones.length;
-					var cnt = steps[2].clones.length;
-					var start = steps[2].clones.indexOf(current_choice['innocell']);
-					start = (start != -1)? start : (steps[2].clones.length -1)
-					for(var ci = start, ci2 = 0; ci >= 0; ci--, ci2++){
-						steps[2].clones[ci].position.y = 21;
-						new TWEEN.Tween(steps[2].clones[ci].position).to({
-							y : 300
-						},delay).delay(ci2 * delay).start();
-						
-					}
-					for(var ci = steps[2].clones.length -1; ci > start; ci--, ci2++){
-						steps[2].clones[ci].position.y = 21;
-						new TWEEN.Tween(steps[2].clones[ci].position).to({
-							y : 300
-						},delay).delay(ci2 * delay).start();
-					}
-				}	
-			},
-			
-			3 : {
-				'in' : function(cb){
-					var delay = 800 / steps[1].clones.length;
-					var last = steps[3].clones.length - 1;
-					for(var ci = 0; ci < steps[3].clones.length; ci++){
-						steps[3].clones[ci].position.y = 300;
-						
-						var tw = new TWEEN.Tween(steps[3].clones[ci].position).to({y : 0},delay).delay(ci * delay);
+					for(var ci = 0; ci < steps[1].clones.length; ci++){
+						new TWEEN.Tween(steps[1].clones[ci].rotation).to({y :0},delay).delay(ci * delay).start();
+						var tw = new TWEEN.Tween(steps[1].clones[ci].position).to({y : 300},delay).delay(ci * delay);
 
 						if((typeof(cb) == 'function') && last == ci){
 							tw.onComplete(cb);
 						}
 						tw.start();
 					}
-					
-					//animate camera
-					new TWEEN.Tween(camera.position).to({
-						x : 7.44418,
-						y : 161.250269,
-						z : 147.11240281
-					}, 400).start();
-					new TWEEN.Tween(camera.rotation).to({
-						x : -0.225372,
-						y : -0.005534,
-						z : -0.00127
-					}, 400).start();
-					var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-						x : 8.4538,
-						y : 120.4814,
-						z : -30.71046
-					}, 400);
+				}		
+			},
+			11 : {
+				'in' :	function(cb){
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -2,
+						z : 231,
+						y : 191
+
+					},1000);
 					ctw.onComplete(function(){orbitcntrl.update();});
 					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.5169,
+						z : -0.007,
+						y : -0.004
+
+					},1000).start();
+					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
+							y : disrupter_groups['tabletop'].rotation.y - (2 * Math.PI)
+						},2000).easing(TWEEN.Easing.Quadratic.InOut);
+					
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start();
+					
+					var delay = 2000 / steps[1].clones.length;
+					for(var ci = 0; ci < steps[1].clones.length; ci++){
+						steps[1].clones[ci].position.y = 300;
+						new TWEEN.Tween(steps[1].clones[ci].position).to({
+							y : 21
+						},delay).delay(ci * delay).start();
+					}
+				},		
+				'out' :	 function(cb){
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -2,
+						z : 231,
+						y : 191
+
+					},1000);
+					ctw.onComplete(function(){orbitcntrl.update();});
+					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.5169,
+						z : -0.007,
+						y : -0.004
+
+					},1000).start();
+					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
+							y : disrupter_groups['tabletop'].rotation.y + (2 * Math.PI)
+						},2000);
+					
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start();
+					
+					var delay = 2000 / steps[1].clones.length;
+					for(var ci = steps[1].clones.length - 1, ci2 = 0; ci >= 0; ci--, ci2++){
+						steps[1].clones[ci].position.y = 21;
+						new TWEEN.Tween(steps[1].clones[ci].position).to({
+							y : 300
+						},delay).delay(ci2 * delay).start();
+						
+					}
+				}		
+			},
+			2 : {
+				'in' :	function(cb){
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -2,
+						z : 231,
+						y : 191
+
+					},1000);
+					ctw.onComplete(function(){orbitcntrl.update();});
+					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.5169,
+						z : -0.007,
+						y : -0.004
+
+					},1000).start();
+					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
+							y : disrupter_groups['tabletop'].rotation.y - (2 * Math.PI)
+						},2000);
+					
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start();
+					
+					var delay = 2000 / steps[2].clones.length;
+					for(var ci = 0; ci < steps[2].clones.length; ci++){
+						steps[2].clones[ci].position.y = 300;
+						new TWEEN.Tween(steps[2].clones[ci].position).to({
+							y : 21
+						},delay).delay(ci * delay).start();
+					}
+				},	
+				'out' :	function(cb){
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -2,
+						z : 231,
+						y : 191
+
+					},1000);
+					ctw.onComplete(function(){orbitcntrl.update();});
+					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.5169,
+						z : -0.007,
+						y : -0.004
+
+					},1000).start();
+					var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
+							y : disrupter_groups['tabletop'].rotation.y + (2 * Math.PI)
+						},2000);
+					
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start();
+					
+					var delay = 2000 / steps[1].clones.length;
+					var cnt = steps[1].clones.length;
+					for(var ci = steps[1].clones.length - 1, ci2 = 0; ci >= 0; ci--, ci2++){
+						steps[2].clones[ci].position.y = 21;
+						new TWEEN.Tween(steps[2].clones[ci].position).to({
+							y : 300
+						},delay).delay(ci2 * delay).start();
+						
+					}
+				}	
+			},
+			
+			3 : {
+				'in' : function(cb){
+					resetDisrupterTransforms();
+					disrupter_groups['disrupter'].position.x = -400;
+					var modTween =  new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
+							x : 0
+						},500);
+					
+					disrupter_groups['isub_coil02ohm'].position.set(0,250,0);
+					var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
+							y : 0
+						},500);
+						
+					disrupter_groups['innocell'].position.x = -30;
+					disrupter_groups['innocell'].position.y = 400;
+					var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
+							y : 0
+						},500);
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					modTween.chain(subtween);
+					subtween.chain(tw);
+					modTween.start();
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -146,
+						z : 195,
+						y : 126
+
+					},1500);
+					ctw.onComplete(function(){ orbitcntrl.update();});
+					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.326,
+						z : -0.193,
+						y : -0.6176
+
+					},1500).start();
 				},
 				'out' : function(cb){
-					var delay = 800 / steps[3].clones.length;
+					resetDisrupterTransforms();
+					disrupter_groups['disrupter'].position.x = 0;
+					var modTween =  new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
+							x : -400
+						},500);
 					
-					var skip = steps[3].clones.indexOf(current_choice['coil']);
-					
-					var clones = steps[3].clones.slice(0);
-					
-					var dmul = 0;
-					if(skip > -1){
-						new TWEEN.Tween(clones[skip].position).to({y : 300},delay).start();
-						clones.splice(skip,1);
-						dmul = 1;
+					disrupter_groups['isub_coil02ohm'].position.set(0,0,0);
+					var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
+							y : 400
+						},500);
+						
+					disrupter_groups['innocell'].position.x = -30;
+					disrupter_groups['innocell'].position.y = 0;
+					var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
+							y : 400
+						},500);
+					if(typeof(cb) == 'function'){
+						modTween.onComplete(cb);
 					}
+					tw.chain(subtween);
+					subtween.chain(modTween);
+					tw.start();
 					
-					while(clones.length){
-						var cln = clones.shift();
-						var tw = new TWEEN.Tween(cln.position).to({y : 300},delay).delay(dmul * delay);
-						dmul++;
-						if((typeof(cb) == 'function') && !clones.length){
-							tw.onComplete(cb);
-						}
-						tw.start();
-					}
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -146,
+						z : 195,
+						y : 126
+
+					},1500);
+					ctw.onComplete(function(){orbitcntrl.update();});
+					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.326,
+						z : -0.193,
+						y : -0.6176
+
+					},1500).start();
 				}
 			},
 			4 : {
@@ -480,157 +488,67 @@ var _InnokinDisrupterViewer = function(){
 					resetDisrupterTransforms();
 					disrupter.rotation.set(0,0,0);
 					disrupter.position.set(0,0,0);
-					disrupter_groups['disrupter'].position.x = -400;
-					var modTween =  new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
-							x : 0
-						},300);
-					
-					disrupter_groups['isub_coil02ohm'].position.y = 250;
-					var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
-							y : 0
-						},300);
-						
-					disrupter_groups['innocell'].position.x = -30;
-					disrupter_groups['innocell'].position.y = 400;
-					var cell_stg1 = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
-							y : 100
-					},300);
-					cell_stg1.onComplete(function(){
-						try{
-							sounds.slide_in.obj.play();
-						}catch(e){}
-					});
-					var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
-							y : 0
-						},100);
-						
-					tw.onComplete(
-						function(){
-							var groupTween =  new TWEEN.Tween(disrupter.rotation).to({
-								z : -Math.PI / 2,
-								x : Math.PI / 2 ,
-								//y : Math.PI 
-							},800);
-							new TWEEN.Tween(disrupter.position).to({
-								x : -60,
-								z : -10,
-								y : 30
-		
-							},800).start();
-							
-							if(typeof(cb) == 'function'){
-								groupTween.onComplete(cb);
-							}
-							groupTween.start()
-							//animate camera stage 2
-							new TWEEN.Tween(camera.position).to({
-								x : 12.75759306407929,
-								y : 70.2878973429858,
-								z : 113.82941043722535
-							}, 900).start();
-							new TWEEN.Tween(camera.rotation).to({
-								x : -0.14576356565046156,
-								y : -0.00023981239294456708,
-								z : -0.00003520560129255281
-							}, 900).start();
-							var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-								x : 12.792604357404935,
-								y : 49.08249611245189,
-								z : -30.61686786871972
-							}, 900);
-							ctw.onComplete(function(){orbitcntrl.update();});
-							ctw.start();
-							
-						}
-					);
-					
-					modTween.chain(subtween);
-					cell_stg1.chain(tw);
-					subtween.chain(cell_stg1);
-					modTween.start();
-					
-					//animate camera stage 1
-					new TWEEN.Tween(camera.position).to({
-						x : -133.1346,
-						y : 108.2085,
-						z : 207.3575
-					}, 900).start();
-					new TWEEN.Tween(camera.rotation).to({
-						x : -0.13705,
-						y : -0.58042,
-						z : -0.0755
-					}, 900).start();
-					var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-						x : 21.723,
-						y : 75.946,
-						z : -26.5752
-					}, 900);
+					var tw =  new TWEEN.Tween(disrupter.rotation).to({
+						z : -Math.PI / 2,
+						x : Math.PI / 2 ,
+						//y : Math.PI 
+					},1000);
+					new TWEEN.Tween(disrupter.position).to({
+						x : -60,
+						z : -10,
+						y : 30
+
+					},1000).start();
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -44,
+						z : 101,
+						y : 73
+
+					},1000);
 					ctw.onComplete(function(){orbitcntrl.update();});
 					ctw.start();
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.305,
+						z : -0.142,
+						y : -0.471
+
+					},1000).start();
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start()
 				},
 				'out' : function(cb){
 					resetDisrupterTransforms();
-					/////////////////////////////
-					var groupTween =  new TWEEN.Tween(disrupter.rotation).to({
+					
+					var tw =  new TWEEN.Tween(disrupter.rotation).to({
 						z : 0,
-						x : 0 ,
-						y : 0 
-					},800);
-					new TWEEN.Tween(disrupter.position).to({
+						y : 0,
 						x : 0,
+					},1000);
+					new TWEEN.Tween(disrupter.position).to({
 						z : 0,
-						y : 0
+						y : 0,
+						x : 0,
+					},1000).start();
+					var ctw = new TWEEN.Tween(camera.position).to({
+						x : -146,
+						z : 195,
+						y : 126
 
-					},800).start();
-					
-					groupTween.onComplete(function(){
-						try{
-							sounds.slide_out.obj.play();
-						}catch(e){}
-						var modTween =  new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
-							x : -400
-						},300);
-					
-						var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
-								y : 250
-							},300);
-							
-						var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
-								x : -30,
-								y : 400
-							},300);
-						
-						tw.chain(subtween);
-						subtween.chain(modTween);
-						if(typeof(cb) == 'function'){
-							modTween.onComplete(cb)
-						}
-						try{
-							sounds.slide_out.obj.play();
-						}catch(e){}
-						tw.start();
-					});
-					
-					groupTween.start()
-					//animate camera 
-					new TWEEN.Tween(camera.position).to({
-						x : -133.1346,
-						y : 108.2085,
-						z : 207.3575
-					}, 600).start();
-					new TWEEN.Tween(camera.rotation).to({
-						x : -0.13705,
-						y : -0.58042,
-						z : -0.0755
-					}, 600).start();
-					var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-						x : 21.723,
-						y : 75.946,
-						z : -26.5752
-					}, 600);
+					},1000);
 					ctw.onComplete(function(){orbitcntrl.update();});
 					ctw.start();
-					
+					new TWEEN.Tween(camera.rotation).to({
+						x : -0.326,
+						z : -0.193,
+						y : -0.6176
+
+					},1000).start();
+					if(typeof(cb) == 'function'){
+						tw.onComplete(cb);
+					}
+					tw.start()
 				}
 			}
 		}		
@@ -651,67 +569,9 @@ var _InnokinDisrupterViewer = function(){
 	}
 	
 	function _handleStepChange(evt){
-		if(reached_step4){
-			var data = parseInt(evt.target.getAttribute("data-step"));
-			if(!isNaN(data)){
-				if(data != current_step){
-					setStep(data);
-				}
-			}
-		}
-		if(evt.preventDefault){
-			evt.preventDefault();
-		}
-		return false;
-	}
-	
-	function _handleStepTools(evt){
-		var action = evt.target.getAttribute("data-action");
-		switch(action){
-			case 'zoom-full':
-				zoomFullView();
-				break;
-			case 'zoom-oled':
-				zoomOled();
-				break;
-			case 'change-mod-color':
-				var idx = parseInt(evt.target.getAttribute("data-coloridx"),10);
-				if(!isNaN(idx)){
-					var shell = steps[1]['clones'][idx].getObjectByName('mod_shell');
-					var material;
-					shell.traverse(function(child){
-						if(child instanceof THREE.Mesh){
-							material = child.material;
-						}
-					});
-					shell = disrupter_groups['disrupter'].getObjectByName('mod_shell');
-					shell.traverse(function(child){
-						if(child instanceof THREE.Mesh){
-							child.material = material;
-						}
-					});
-					current_choice['disrupter'] =  steps[1]['clones'][idx];
-				}
-				break;
-			case 'change-cell-color':
-				var idx = parseInt(evt.target.getAttribute("data-coloridx"),10);
-				if(!isNaN(idx)){
-					var shell = steps[2]['clones'][idx].getObjectByName('battery_shell');
-					var material;
-					shell.traverse(function(child){
-						if(child instanceof THREE.Mesh){
-							material = child.material;
-						}
-					});
-					shell = disrupter_groups['innocell'].getObjectByName('battery_shell');
-					shell.traverse(function(child){
-						if(child instanceof THREE.Mesh){
-							child.material = material;
-						}
-					});
-					current_choice['innocell'] =  steps[2]['clones'][idx];
-				}
-				break;
+		var data = parseInt(evt.target.getAttribute("data-step"));
+		if(!isNaN(data)){
+			setStep(data);
 		}
 		if(evt.preventDefault){
 			evt.preventDefault();
@@ -726,99 +586,20 @@ var _InnokinDisrupterViewer = function(){
 			case 'pointerdown':
 				getMousePos(evt);
 				var picked = pick();
-				var pop_y = 15;
 				
 				if(picked){
 					while(!(picked.parent instanceof THREE.Group)){
 						picked = picked.parent;
 					}
-					
-					var next_step = reached_step4? 4 : (current_step + 1);
-					
+					console.log(picked);
 					switch(current_step){
 						case 1:
-							if(picked.name == 'disrupter'){
-								if(picked.position.y == pop_y){
-									current_choice.disrupter = picked;
-									var pmaterial;
-									var pshell = picked.getObjectByName('mod_shell');
-									
-									pshell.traverse(function(child){
-										if(child instanceof THREE.Mesh){
-											pmaterial = child.material;
-										}
-									});
-									disrupter_groups['disrupter'].getObjectByName('mod_shell').traverse(function(child){
-										if(child instanceof THREE.Mesh){
-											child.material = pmaterial; 
-										}
-									});
-									setStep(next_step);
-								}else{
-									if(prev_picked && prev_picked.name == 'disrupter'){
-										animations.popout_object(prev_picked, 0);
-									}
-									animations.popout_object(picked, pop_y);
-									prev_picked = picked;
-								}
-							}
-							break;
 						case 2:
-							if(picked.name == 'innocell'){
-								if(picked.position.y == (pop_y + 21)){
-									current_choice['innocell'] = picked;
-									var pmaterial;
-									var pshell = picked.getObjectByName('battery_shell');
-									
-									pshell.traverse(function(child){
-										if(child instanceof THREE.Mesh){
-											pmaterial = child.material;
-										}
-									});
-									disrupter_groups['innocell'].getObjectByName('battery_shell').traverse(function(child){
-										if(child instanceof THREE.Mesh){
-											child.material = pmaterial; 
-										}
-									});
-									
-									setStep(next_step);
-								}else{
-									if(prev_picked && prev_picked.name == 'innocell'){
-										animations.popout_object(prev_picked, 21);
-									}
-									animations.popout_object(picked, pop_y + 21);
-									prev_picked = picked;
-								}
-							}
-							break;
 						case 3:
-							if(picked.name == 'isub_coil02ohm'){
-								if(picked.position.y == pop_y){
-									current_choice['coil'] = picked;
-									reached_step4 = true;
-									setStep(next_step);
-								}else{
-									if(prev_picked && prev_picked.name == 'isub_coil02ohm'){
-										animations.popout_object(prev_picked, 0);
-									}
-									animations.popout_object(picked, pop_y);
-									prev_picked = picked;
-								}
-							}
 							break;
 						case 4:
-							console.log(picked.name);
-							switch(picked.name){
-								case 'startbutton':
-									olcd.update('on')
-									break;
-								case 'up_button':
-									olcd.update('watts')
-									break;
-								case 'down_button':
-									olcd.update('volts')
-									break;
-							}
+							orbitcntrl.enabled = false;
+							olcd.update('on')
 							break;
 					}
 				}
@@ -826,6 +607,7 @@ var _InnokinDisrupterViewer = function(){
 			case 'mouseup':
 			case 'touchend':
 			case 'pointerup':
+				orbitcntrl.enabled = true;
 				break;
 			default:
 		}
@@ -1012,7 +794,7 @@ var _InnokinDisrupterViewer = function(){
 				var btn = document.createElement('span');
 				btn.className = 'step-button';
 				btn.setAttribute('data-step' , i);
-				btn.innerHTML = steps[i]['icon']? '&nbsp;' : '<span class="step-no">'+i+'.</span> '+steps[i]['title'];
+				btn.innerHTML = steps[i]['icon']? '&nbsp;' : i+'. '+steps[i]['title'];
 				btn.className += steps[i]['icon']? ' '+steps[i]['icon'] : '';
 				sbhi.appendChild(btn);
 				step_buttons.push(btn);
@@ -1021,78 +803,28 @@ var _InnokinDisrupterViewer = function(){
 				}
 			}
 			
-			//add step 4 tools buttons
-			var step4_tools = ['zoom-full', 'zoom-oled'];
-			for(var ti = 0; ti < step4_tools.length; ti++){
-				var tool_btn = document.createElement('span');
-				tool_btn.className = 'step4-tool-button '+step4_tools[ti];
-				tool_btn.setAttribute('data-action',step4_tools[ti]);
-				tool_btn.innerHTML = '&nbsp;';
-				UI.wrapper.appendChild(tool_btn);
-				for(var ei = 0; ei < evenst.length; ei++){
-					tool_btn.addEventListener( evenst[ei], _handleStepTools);
-				}
-				step4_tool_buttons.push(tool_btn);
-			}
-			
-			//add color swatches
-			var csw_mod = document.createElement('span');
-			csw_mod.className = 'viewer-color-swatches';
-			csw_mod.id = 'InnokinModSwatches';
-			var csw_mod_ttl = document.createElement('span');
-			csw_mod_ttl.className = 'part-title';
-			csw_mod_ttl.innerHTML = 'Disrupter:';
-			csw_mod.style.right = '30px';
-			csw_mod.appendChild(csw_mod_ttl);
-			for(var mcli = 0; mcli < disrupter_matreials.length; mcli++){
-				var swtch = document.createElement('span');
-				swtch.className = 'color-swatch';
-				swtch.style.backgroundColor = '#'+(0x1000000 | disrupter_matreials[mcli]['color']).toString(16).substring(1);
-				swtch.setAttribute('data-action','change-mod-color');
-				swtch.setAttribute('data-coloridx',mcli);
-				swtch.innerHTML = '&nbsp;';
-				csw_mod.appendChild(swtch);
-				for(var ei = 0; ei < evenst.length; ei++){
-					swtch.addEventListener( evenst[ei], _handleStepTools);
-				}
-			}
-			step4_tool_buttons.push(csw_mod);
-			UI.wrapper.appendChild(csw_mod);
-			
-			var csw_mod = document.createElement('span');
-			csw_mod.className = 'viewer-color-swatches';
-			csw_mod.id = 'InnokinCellSwatches';
-			var csw_mod_ttl = document.createElement('span');
-			csw_mod_ttl.className = 'part-title';
-			csw_mod_ttl.innerHTML = 'InnokinCell:';
-			csw_mod.style.left = '30px';
-			csw_mod.appendChild(csw_mod_ttl);
-			for(var mcli = 0; mcli < innocell_matreials.length; mcli++){
-				var swtch = document.createElement('span');
-				swtch.className = 'color-swatch';
-				swtch.style.backgroundColor = '#'+(0x1000000 | innocell_matreials[mcli]['color']).toString(16).substring(1);
-				swtch.setAttribute('data-action','change-cell-color');
-				swtch.setAttribute('data-coloridx',mcli);
-				swtch.innerHTML = '&nbsp;';
-				csw_mod.appendChild(swtch);
-				for(var ei = 0; ei < evenst.length; ei++){
-					swtch.addEventListener( evenst[ei], _handleStepTools);
-				}
-			}
-			UI.wrapper.appendChild(csw_mod);
-			step4_tool_buttons.push(csw_mod);
 			showLoading();
 		}
 	} 
 	
 	function resetDisrupterTransforms(){
 		disrupter_groups['isub_coil02ohm'].rotation.set(0,0,0);
-		//disrupter_groups['isub_coil02ohm'].position.set(0,0,0);
-		disrupter_groups['isub_coil02ohm'].position.set(-22.5,0,-3.5);
+		disrupter_groups['isub_coil02ohm'].position.set(0,0,0);
 		disrupter_groups['disrupter'].rotation.set(0,0,0);
 		disrupter_groups['disrupter'].position.set(0,0,0);
 		disrupter_groups['innocell'].rotation.set(0,0,0);
-		disrupter_groups['innocell'].position.set(-29.95, 0,0);
+		disrupter_groups['innocell'].position.set(-30, 0,0);
+	}
+	
+	function resetCameraAndControls(){
+		orbitcntrl = new THREE.OrbitControls( camera, renderer.domElement );
+		orbitcntrl.noPan = true;
+		orbitcntrl.noKeys = true;
+		orbitcntrl.minDistance = 100;
+		orbitcntrl.maxDistance = 250;
+		orbitcntrl.maxPolarAngle = Math.PI / 2;
+		orbitcntrl.panUp(50);
+		orbitcntrl.update();
 	}
 	
 	function hideAllGroups(){
@@ -1104,6 +836,41 @@ var _InnokinDisrupterViewer = function(){
 				for(var ci = 0; ci < steps[stp].clones.length; ci++){
 					steps[stp].clones[ci].visible = false;
 				}
+			}
+		}
+	}
+	
+	function _cloneDisrupterForStep1(){
+		if(!steps[1]['clones'].length){
+			var wholeradians = Math.PI / 4;
+			var positions = [
+				[-41, 21, 4],
+				[-25, 21, 30],
+				[ 4, 21, 41],
+				[ 32, 21, 25],
+				[ 41, 21, -4],
+				[ 25, 21, -32],
+				[ -4, 21, -41],
+				[ -32, 21, -25]
+			];
+			
+			for(var di = 0;  di < 8; di++){
+				var dclone = disrupter_groups['disrupter'].clone();
+				disrupter_groups['tabletop'].add(dclone);
+				dclone.rotation.y = wholeradians * di;
+				dclone.position.set(positions[di][0],positions[di][1],positions[di][2]);
+				var shell = dclone.getObjectByName('mod_shell');
+				if(shell){
+					var mi = di % disrupter_matreials.length ;
+					var material = new THREE.MeshPhongMaterial(disrupter_matreials[mi]);
+					shell.traverse(function(child){
+						if(child instanceof THREE.Mesh){
+							child.material = material;
+						}
+					});
+				}
+				dclone.visible = false;
+				steps[1]['clones'].push(dclone);
 			}
 		}
 	}
@@ -1177,45 +944,6 @@ var _InnokinDisrupterViewer = function(){
 		}
 	}
 	
-	function createCoilOhmLabelStep3(text){
-		var textGeo = new THREE.TextGeometry( text, {
-
-			size: 10,
-			height: 2,
-			curveSegments: 4,
-
-			font: "droid sans",
-			weight: 'normal',
-			style: 'normal',
-
-			bevelThickness: 1,
-			bevelSize: 1,
-			bevelEnabled: false,
-
-			material: 0,
-			extrudeMaterial: 1
-
-		});
-
-		textGeo.computeBoundingBox();
-		material = new THREE.MeshPhongMaterial({color: 0xB3B9C3, shininess: 30, specular: 0xDEDBE6, metal: true, shading: THREE.FlatShading});
-		
-
-		var centerOffset = -0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-
-		var textMesh1 = new THREE.Mesh( textGeo, material );
-
-		textMesh1.position.x = centerOffset;
-		textMesh1.position.y = 60;
-		textMesh1.position.z = 0;
-
-		textMesh1.rotation.x = 0;
-		textMesh1.rotation.y = 0;
-		group = new THREE.Group();
-		group.add( textMesh1 );
-		return group;
-	}
-	
 	function cloneCoilForStep3(){
 		if(!steps[3]['clones'].length){
 			disrupter_groups['step3'] = new THREE.Group();
@@ -1228,16 +956,9 @@ var _InnokinDisrupterViewer = function(){
 				disrupter_groups['step3'].add(dclone);
 				var dir = (di % 2)? 1 : -1;
 				dclone.userData['ohms'] = coil_ohms[di];
-				dx += di * 100 * dir;
-				var cx = dclone.position.x;
-				dclone.position.set(cx + dx - 25, 0 , 0);
-				dclone.rotation.set(0, 0 , 0);
-				//add ohm label
-				var ohms = createCoilOhmLabelStep3(coil_ohms[di] + ' \u03A9');
-				
-				dclone.add(ohms);
-				
-				
+				dx += di * 60 * dir;
+				dclone.position.set(dx + 15, 0 , 0);
+				dclone.rotation.set(0, Math.PI / 4 , 0);
 				
 				dclone.visible = false;
 				steps[3]['clones'].push(dclone);
@@ -1246,55 +967,12 @@ var _InnokinDisrupterViewer = function(){
 		}
 	}
 	
-	function setStepCameraPositions(){
-		if(!debug_mode){
-			orbitcntrl.enabled = true;
-			orbitcntrl.minAzimuthAngle = -Infinity;
-			orbitcntrl.maxAzimuthAngle = Infinity;
-			orbitcntrl.minPolarAngle = Math.PI / 3;
-			orbitcntrl.maxPolarAngle = Math.PI / 2;
-			switch(current_step){
-				case 1:
-					orbitcntrl.minAzimuthAngle = -Math.PI / 10;
-					orbitcntrl.maxAzimuthAngle = Math.PI / 10;
-					break;
-				case 2:
-					orbitcntrl.minPolarAngle = Math.PI / 3;
-					orbitcntrl.maxPolarAngle = Math.PI / 3;
-					break
-				case 3:
-					orbitcntrl.minAzimuthAngle = -Math.PI / 20;
-					orbitcntrl.maxAzimuthAngle = Math.PI / 20;
-					camera.position.set(2.13455, 178.7043, 281.966);
-					camera.rotation.set(-0.39847,0.006977,0.00293723);
-					orbitcntrl.center.set(0,60,0);
-					orbitcntrl.update();
-					break;
-				case 4:
-					camera.position.set(7.4252,84.2356,163.364);
-					camera.rotation.set(-0.1473,0.04493,0.00666);
-					orbitcntrl.center.set(0,60, 0);
-					orbitcntrl.maxPolarAngle = Math.PI;
-					orbitcntrl.minPolarAngle = 0;
-					orbitcntrl.update();
-					orbitcntrl.enabled = false;
-			}
-		}else{
-			orbitcntrl.minPolarAngle = 0;
-			orbitcntrl.maxPolarAngle = Math.PI;
-			orbitcntrl.noPan = false;
-		}
-	}
-	
 	function switchViewStep(newstep){
-		from_step = current_step;
 		newstep = parseInt(newstep);
 		newstep = isNaN(newstep) || (newstep > 4)? current_step : newstep;
 		if(current_step != newstep){
-			
 			current_step = newstep;
 			hideAllGroups();
-			setStepCameraPositions();
 			switch(current_step){
 				case 1:
 					disrupter_groups['step1'].visible = true;
@@ -1302,11 +980,15 @@ var _InnokinDisrupterViewer = function(){
 						steps[current_step].clones[ci].visible = true;
 					}	
 					current_pick_set = steps[current_step].clones;
+					camera.position.set(7.4252, 84.2356, 163.364);
+					camera.rotation.set(-0.1473, 0.045, 0.006663);
+					
 					break;
 				case 2:
 					disrupter_groups['tabletop'].visible = true;
 					for(var ci = 0; ci < steps[current_step].clones.length; ci++){
 						steps[current_step].clones[ci].visible = true;
+						//steps[current_step].clones[ci].positon.y = 400;
 					}	
 					current_pick_set = disrupter_groups['tabletop'].children;
 					break
@@ -1325,20 +1007,17 @@ var _InnokinDisrupterViewer = function(){
 					disrupter_groups['disrupter'].visible = true;
 					disrupter_groups['isub_coil02ohm'].visible = true;
 					current_pick_set = disrupter_buttons;
+					
 			}
 			for(var sbi = 0; sbi < step_buttons.length; sbi++){
 				step_buttons[sbi].className = step_buttons[sbi].className.replace(/active/g,' ').replace(/\s+/,' ');
 			}
 			step_buttons[current_step - 1].className +=' active';
 			document.getElementById('WebGlViewerTitle').innerHTML = steps[current_step]['title'];
-			for(var sbi = 0; sbi < step4_tool_buttons.length; sbi++){
-				step4_tool_buttons[sbi].style.display = (current_step == 4)? 'block' : 'none';
-			}
 		} 
 	}
 	
 	function onLoadComplete(){
-		resetDisrupterTransforms();
 		scene.remove(disrupter_groups['disrupter'],disrupter_groups['innocell'], disrupter_groups['isub_coil02ohm']);
 		disrupter = new THREE.Group();
 		disrupter.add(disrupter_groups['disrupter']);
@@ -1380,51 +1059,102 @@ var _InnokinDisrupterViewer = function(){
 	}
 	
 	function setStep(newstep){
+		from_step = current_step;
 		TWEEN.removeAll();
 		if(animations.step[current_step]){
-			animations.step[current_step]['out'](function(){
+			if(current_step == 3 && newstep == 4){
 				switchViewStep(newstep);
 				animations.step[current_step]['in']();
-			});
+			}else if (current_step == 4 && newstep == 3){
+				animations.step[current_step]['out']();
+			}else if (current_step == 4 && newstep < 3){
+				animations.step[current_step]['out'](function(){
+					animations.step[3]['out'](function(){
+						switchViewStep(newstep);
+						animations.step[current_step]['in']();
+					});
+				});
+			}else if (current_step < 3 && newstep == 4){
+				animations.step[current_step]['out'](function(){
+					switchViewStep(newstep);
+					animations.step[3]['in'](function(){
+						animations.step[current_step]['in']();
+					});
+					
+				});
+				
+			}else{
+				animations.step[current_step]['out'](function(){
+					switchViewStep(newstep);
+					animations.step[current_step]['in']();
+				});
+			}
 		}else{
 			switchViewStep(newstep);
 		}	
 	}
 	
-	function zoomOled(){
-		if(current_step == 4){
-			TWEEN.removeAll();
-			camera.position.set(7.4252,84.2356,163.364);
-			camera.rotation.set(-0.1473,0.04493,0.00666);
-			orbitcntrl.center.set(0,60, 0);
-			resetDisrupterTransforms();
-			animations.zoom_to_oled();
-			orbitcntrl.enabled = debug_mode? true : false;
-		}		
-	}
-	function zoomFullView(){
-		if(current_step == 4){
-			TWEEN.removeAll();
-			resetDisrupterTransforms();
-			animations.zoom_to_fullview();
-			orbitcntrl.enabled = true;
-			orbitcntrl.minAzimuthAngle = -Infinity;
-			orbitcntrl.maxAzimuthAngle = Infinity;
-			orbitcntrl.minPolarAngle = 0;
-			orbitcntrl.maxPolarAngle = Math.PI;
-		}		
-	}
 	/* public test functions */
-	this.getCamera = function(){
-		console.log(camera.position, camera.rotation,orbitcntrl.center, orbitcntrl.target);
+	this.explode = function(){
+		TWEEN.removeAll();
+		animations.explode_disrupter();
 	};
-	this.zoom_oled = function(){
-		zoomOled();
+	this.implode = function(){
+		TWEEN.removeAll();
+		animations.implode_disrupter();
 	};
-	this.zoom_full = function(){
-		zoomFullView();
+	this.cellout = function(){
+		TWEEN.removeAll();
+		animations.innocell_flyout();
+	};
+	this.cellin = function(){
+		TWEEN.removeAll();
+		animations.innocell_flyin();
+	};
+	this.tablerotate = function(left){
+		TWEEN.removeAll();
+		animations.tabletop_rotate(left);
+	};
+	this.cellchange = function(){
+		TWEEN.removeAll();
+		animations.change_battery();
+	};
+	this.coilout = function(){
+		TWEEN.removeAll();
+		animations.coil_fadeout();
+	};
+	this.coilin = function(){
+		TWEEN.removeAll();
+		animations.coil_fadein();
+	};
+	this.coilflyout = function(){
+		TWEEN.removeAll();
+		animations.coil_flyout();
+	};
+	this.coilflyin = function(){
+		TWEEN.removeAll();
+		animations.coil_flyin();
+	};
+	this.step1_in = function(){
+		TWEEN.removeAll();
+		animations.step[1]['in']();
+	};
+	this.step1_out = function(){
+		TWEEN.removeAll();
+		animations.step[1]['out']();
+	};
+	this.step2_in = function(){
+		TWEEN.removeAll();
+		animations.step[2]['in']();
+	};
+	this.step2_out = function(){
+		TWEEN.removeAll();
+		animations.step[2]['out']();
 	};
 	/* public functions */
+	this.getCamera = function(){
+		console.log(camera.position, camera.rotation);
+	};
 	this.Init = function(uconfig){
 		if(scene) return false;
 		
@@ -1485,33 +1215,23 @@ var _InnokinDisrupterViewer = function(){
 		scene.add( light5);
 		
 		
-		/*var light = new THREE.AmbientLight( 0x404040 ); 
-		scene.add( light );*/
+		//var light = new THREE.AmbientLight( 0x404040 ); 
+		//scene.add( light );
 		
-		cameraLight = new THREE.PointLight( 0xffffff, 0.10); //,500);
+		cameraLight = new THREE.PointLight( 0xcccccc, 0.10); //,500);
 		cameraLight.position.x = camera.position.x;
 		cameraLight.position.y = camera.position.y;
 		cameraLight.position.z = camera.position.z;
 		scene.add(cameraLight);
 		
 		addHelpers();
-		
-		//add sounds
-		try{
-			for (var a_tag in sounds){
-				sounds[a_tag]['obj'] = document.createElement('audio');
-				for(var si = 0; si < sounds[a_tag]['src'].length; si++){
-					var ssrc = document.createElement('source');
-					var atype = sounds[a_tag]['src'][si].split('.')
-					atype = atype[atype.length - 1];
-					ssrc.type = 'audio/'+atype;
-					ssrc.src = resource_base+sounds[a_tag]['src'][si];
-					sounds[a_tag]['obj'].appendChild(ssrc);
-				}
-				sounds[a_tag]['obj'].load();
-			}
-		}catch(e){}
-		
+		/*
+		var geometry = new THREE.CylinderGeometry( 150, 150, 1, 200 );
+		var material = new THREE.MeshPhongMaterial(materials.silver_material);
+		var cylinder = new THREE.Mesh( geometry, material );
+		cylinder.position.y = -20;
+		scene.add( cylinder );
+		*/
 		buildUI();
 		LoadDisruptorObjects();
 		render();
