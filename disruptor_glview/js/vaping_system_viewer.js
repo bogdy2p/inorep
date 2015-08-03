@@ -13,31 +13,25 @@ var _InnokinDisrupterViewer = function () {
         slide_in: {src: ['sounds/disrupter_lock.mp3', 'sounds/disrupter_lock.ogg'], obj: null},
         slide_out: {src: ['sounds/disrupter_unlock.mp3', 'sounds/disrupter_unlock.ogg'], obj: null},
     };
-
     var urls = [resource_base + "texture/envmap3.png", resource_base + "texture/envmap3.png",
         resource_base + "texture/envmap.png", resource_base + "texture/envmap2.png",
         resource_base + "texture/envmap3.png", resource_base + "texture/envmap3.png"];
     var urls_cr = [resource_base + "texture/envmap.png", resource_base + "texture/envmap.png",
         resource_base + "texture/envmap.png", resource_base + "texture/envmap.png",
         resource_base + "texture/envmap.png", resource_base + "texture/envmap.png"];
-
     var textureCube = THREE.ImageUtils.loadTextureCube(urls);
     textureCube.minFilter = THREE.LinearFilter;
     var textureCubeCrome = THREE.ImageUtils.loadTextureCube(urls_cr);
     textureCubeCrome.minFilter = THREE.LinearFilter;
-
     var current_step = 1;
     var from_step = 1;
-
     var config = {
         width: 830,
         height: 500,
         container: null
     };
-
     var step_buttons = [];
     var step4_tool_buttons = [];
-
     var materials = {
         blue_battery: {color: 0x005BBB, shininess: 30, specular: 0x0093EF, metal: true, side: THREE.DoubleSide},
         whiteblue_battery: {color: 0x72DCD4, shininess: 30, specular: 0x91D7DD, metal: true, side: THREE.DoubleSide},
@@ -60,14 +54,13 @@ var _InnokinDisrupterViewer = function () {
         coil: {color: 0xCCCCCC, shininess: 50, specular: 0xAACCDD, metal: true, side: THREE.DoubleSide},
         coil_glass: {color: 0xffffff, shininess: 10, specular: 0xDDDDDD, transparent: true, opacity: 0.2, side: THREE.DoubleSide, depthWrite: false},
         screen_transparent: {color: 0x009900, shininess: 10, specular: 0xFF00FF, transparent: true, opacity: 0.3, side: THREE.DoubleSide},
+        defaultScreenBackground: {color: 0x33300F, shininess: 50, specular: 0x22A0C0, metal: true, side: THREE.DoubleSide},
         plastic_transparent: {color: 0xffffff, specular: 0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.40, reflectivity: 30, shininess: 80},
         plastic_powled: {color: 0xffffff, specular: 0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.90, reflectivity: 5, shininess: 40},
         plastic_black: {color: 0x111111, shininess: 50, specular: 0xffffff, side: THREE.DoubleSide},
     };
-
     var disrupter_matreials = [materials.silver_material, materials.golden_material, materials.black_material];
     var innocell_matreials = [materials.black_battery, materials.blue_battery, materials.pink_battery, materials.red_battery, materials.green_battery, materials.purple_battery, materials.whiteblue_battery];
-
     var toLoad = {
         disrupter:
                 [
@@ -87,7 +80,8 @@ var _InnokinDisrupterViewer = function () {
                     {model: 'obj/power_button.obj', type: 'obj', name: 'startbutton', material: materials.silver_material},
                     {model: 'obj/up_button.obj', type: 'obj', name: 'up_button', material: materials.silver_material},
                     {model: 'obj/down_button.obj', type: 'obj', name: 'down_button', material: materials.silver_material},
-                    {model: 'obj/olcd.dae', type: 'collada', name: 'olcd', material: {color: 0xffffff}},
+//                    {model: 'obj/olcd.dae', type: 'collada', name: 'olcd', material: {color: 0xffffff}},
+                    {model: 'obj/olcd.dae', type: 'collada', name: 'olcd', material: materials.defaultScreenBackground},
                     {model: 'obj/screen_frame.obj', type: 'obj', name: 'olcd_frame', material: materials.silver_material}
                 ],
         innocell:
@@ -128,12 +122,10 @@ var _InnokinDisrupterViewer = function () {
     }
 
     var olcd = null;
-
     var UI = {
         title: undefined,
         wrapper: undefined
     };
-
     window.requestAnimationFrame = (function ()
     {
         return window.requestAnimationFrame ||
@@ -147,11 +139,9 @@ var _InnokinDisrupterViewer = function () {
                     }, 1000 / 60);
                 };
     })();
-
     window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || function (requestId) {
         clearTimeout(requestId);
     };
-
     var animations = {
         popout_object: function (obj, target_y) {
             new TWEEN.Tween(obj.position).to({
@@ -161,7 +151,6 @@ var _InnokinDisrupterViewer = function () {
         coil_fadein: function () {
             disrupter_groups['isub_coil02ohm'].rotation.set(0, 0, 0);
             disrupter_groups['isub_coil02ohm'].position.set(0, 0, 0);
-
             disrupter_groups['isub_coil02ohm'].traverse(
                     function (child) {
                         if (child instanceof THREE.Mesh) {
@@ -199,19 +188,16 @@ var _InnokinDisrupterViewer = function () {
         implode_disrupter: function () {
             resetDisrupterTransforms();
             disrupter_groups['isub_coil02ohm'].position.y = 30;
-
             new TWEEN.Tween(disrupter_groups['innocell'].position).to({
                 x: -30
             }, 300).start();
             new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
                 y: 0
             }, 300).start();
-
         },
         change_battery: function () {
             resetDisrupterTransforms();
             disrupter_groups['innocell'].position.x = -30;
-
             var cellout = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
                 y: 400
             }, 500);
@@ -233,7 +219,6 @@ var _InnokinDisrupterViewer = function () {
                 y: 30
 
             }, 800).start();
-
             //animate camera
             new TWEEN.Tween(camera.position).to({
                 x: 12.75759306407929,
@@ -254,7 +239,6 @@ var _InnokinDisrupterViewer = function () {
                 orbitcntrl.update();
             });
             ctw.start();
-
         },
         zoom_to_oled2: function () {
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -268,7 +252,6 @@ var _InnokinDisrupterViewer = function () {
                 y: 30
 
             }, 800).start();
-
             //animate camera
             new TWEEN.Tween(camera.position).to({
                 x: 12.75759306407929,
@@ -289,7 +272,6 @@ var _InnokinDisrupterViewer = function () {
                 orbitcntrl.update();
             });
             ctw.start();
-
         },
         zoom_to_fullview: function () {
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -303,7 +285,6 @@ var _InnokinDisrupterViewer = function () {
                 y: 0
 
             }, 800).start();
-
             //animate camera
             new TWEEN.Tween(camera.position).to({
                 x: -144.20119763765334,
@@ -324,7 +305,6 @@ var _InnokinDisrupterViewer = function () {
                 orbitcntrl.update();
             });
             ctw.start();
-
         },
         step: {
             1: {
@@ -337,7 +317,6 @@ var _InnokinDisrupterViewer = function () {
                         steps[1].clones[ci].rotation.y = 0;
                         new TWEEN.Tween(steps[1].clones[ci].rotation).to({y: Math.PI / 4}, delay).delay(ci * delay).start();
                         var tw = new TWEEN.Tween(steps[1].clones[ci].position).to({y: 0}, delay).delay(ci * delay);
-
                         if ((typeof (cb) == 'function') && last == ci) {
                             tw.onComplete(cb);
                         }
@@ -368,11 +347,8 @@ var _InnokinDisrupterViewer = function () {
                 'out': function (cb) {
                     var delay = 1000 / steps[1].clones.length;
                     var last = steps[1].clones.length - 1;
-
                     var skip = steps[1].clones.indexOf(current_choice['disrupter']);
-
                     var clones = steps[1].clones.slice(0);
-
                     var dmul = 0;
                     if (skip > -1) {
                         new TWEEN.Tween(steps[1].clones[skip].rotation).to({y: 0}, delay).start();
@@ -398,12 +374,10 @@ var _InnokinDisrupterViewer = function () {
                     var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
                         y: disrupter_groups['tabletop'].rotation.y - (2 * Math.PI)
                     }, duration);
-
                     if (typeof (cb) == 'function') {
                         tw.onComplete(cb);
                     }
                     tw.start();
-
                     var delay = duration / steps[2].clones.length;
                     for (var ci = 0; ci < steps[2].clones.length; ci++) {
                         steps[2].clones[ci].position.y = 300;
@@ -437,12 +411,10 @@ var _InnokinDisrupterViewer = function () {
                     var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
                         y: disrupter_groups['tabletop'].rotation.y + (2 * Math.PI)
                     }, duration);
-
                     if (typeof (cb) == 'function') {
                         tw.onComplete(cb);
                     }
                     tw.start();
-
                     var delay = duration / steps[2].clones.length;
                     var cnt = steps[2].clones.length;
                     var start = steps[2].clones.indexOf(current_choice['innocell']);
@@ -452,7 +424,6 @@ var _InnokinDisrupterViewer = function () {
                         new TWEEN.Tween(steps[2].clones[ci].position).to({
                             y: 300
                         }, delay).delay(ci2 * delay).start();
-
                     }
                     for (var ci = steps[2].clones.length - 1; ci > start; ci--, ci2++) {
                         steps[2].clones[ci].position.y = 21;
@@ -468,9 +439,7 @@ var _InnokinDisrupterViewer = function () {
                     var last = steps[3].clones.length - 1;
                     for (var ci = 0; ci < steps[3].clones.length; ci++) {
                         steps[3].clones[ci].position.y = 300;
-
                         var tw = new TWEEN.Tween(steps[3].clones[ci].position).to({y: 0}, delay).delay(ci * delay);
-
                         if ((typeof (cb) == 'function') && last == ci) {
                             tw.onComplete(cb);
                         }
@@ -500,11 +469,8 @@ var _InnokinDisrupterViewer = function () {
                 },
                 'out': function (cb) {
                     var delay = 800 / steps[3].clones.length;
-
                     var skip = steps[3].clones.indexOf(current_choice['coil']);
-
                     var clones = steps[3].clones.slice(0);
-
                     var dmul = 0;
                     if (skip > -1) {
                         new TWEEN.Tween(clones[skip].position).to({y: 300}, delay).start();
@@ -532,12 +498,10 @@ var _InnokinDisrupterViewer = function () {
                     var modTween = new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
                         x: 0
                     }, 300);
-
                     disrupter_groups['isub_coil02ohm'].position.y = 250;
                     var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
                         y: 0
                     }, 300);
-
                     disrupter_groups['innocell'].position.x = -30;
                     disrupter_groups['innocell'].position.y = 400;
                     var cell_stg1 = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
@@ -552,7 +516,6 @@ var _InnokinDisrupterViewer = function () {
                     var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
                         y: 0
                     }, 100);
-
                     tw.onComplete(
                             function () {
                                 var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -566,7 +529,6 @@ var _InnokinDisrupterViewer = function () {
                                     y: 30
 
                                 }, 800).start();
-
                                 if (typeof (cb) == 'function') {
                                     groupTween.onComplete(cb);
                                 }
@@ -591,15 +553,12 @@ var _InnokinDisrupterViewer = function () {
                                     orbitcntrl.update();
                                 });
                                 ctw.start();
-
                             }
                     );
-
                     modTween.chain(subtween);
                     cell_stg1.chain(tw);
                     subtween.chain(cell_stg1);
                     modTween.start();
-
                     //animate camera stage 1
                     new TWEEN.Tween(camera.position).to({
                         x: -133.1346,
@@ -635,7 +594,6 @@ var _InnokinDisrupterViewer = function () {
                         y: 0
 
                     }, 800).start();
-
                     groupTween.onComplete(function () {
                         try {
                             sounds.slide_out.obj.play();
@@ -644,16 +602,13 @@ var _InnokinDisrupterViewer = function () {
                         var modTween = new TWEEN.Tween(disrupter_groups['disrupter'].position).to({
                             x: -400
                         }, 300);
-
                         var subtween = new TWEEN.Tween(disrupter_groups['isub_coil02ohm'].position).to({
                             y: 250
                         }, 300);
-
                         var tw = new TWEEN.Tween(disrupter_groups['innocell'].position).to({
                             x: -30,
                             y: 400
                         }, 300);
-
                         tw.chain(subtween);
                         subtween.chain(modTween);
                         if (typeof (cb) == 'function') {
@@ -665,7 +620,6 @@ var _InnokinDisrupterViewer = function () {
                         }
                         tw.start();
                     });
-
                     groupTween.start()
                     //animate camera 
                     new TWEEN.Tween(camera.position).to({
@@ -687,12 +641,10 @@ var _InnokinDisrupterViewer = function () {
                         orbitcntrl.update();
                     });
                     ctw.start();
-
                 }
             }
         }
     };
-
     /* private functions */
     function getMousePos(evt) {
         var rect = renderer.domElement.getBoundingClientRect();
@@ -785,14 +737,12 @@ var _InnokinDisrupterViewer = function () {
                 getMousePos(evt);
                 var picked = pick();
                 var pop_y = 15;
-
                 if (picked) {
                     while (!(picked.parent instanceof THREE.Group)) {
                         picked = picked.parent;
                     }
 
                     var next_step = reached_step4 ? 4 : (current_step + 1);
-
                     switch (current_step) {
                         case 1:
                             if (picked.name == 'disrupter') {
@@ -800,7 +750,6 @@ var _InnokinDisrupterViewer = function () {
                                     current_choice.disrupter = picked;
                                     var pmaterial;
                                     var pshell = picked.getObjectByName('mod_shell');
-
                                     pshell.traverse(function (child) {
                                         if (child instanceof THREE.Mesh) {
                                             pmaterial = child.material;
@@ -827,7 +776,6 @@ var _InnokinDisrupterViewer = function () {
                                     current_choice['innocell'] = picked;
                                     var pmaterial;
                                     var pshell = picked.getObjectByName('battery_shell');
-
                                     pshell.traverse(function (child) {
                                         if (child instanceof THREE.Mesh) {
                                             pmaterial = child.material;
@@ -838,7 +786,6 @@ var _InnokinDisrupterViewer = function () {
                                             child.material = pmaterial;
                                         }
                                     });
-
                                     setStep(next_step);
                                 } else {
                                     if (prev_picked && prev_picked.name == 'innocell') {
@@ -865,7 +812,7 @@ var _InnokinDisrupterViewer = function () {
                             }
                             break;
                         case 4:
-                            console.log(picked.name);
+//                            console.log(picked.name);
                             switch (picked.name) {
                                 case 'startbutton':
                                     olcd.update('on');
@@ -915,7 +862,6 @@ var _InnokinDisrupterViewer = function () {
         cameraLight.position.y = camera.position.y;
         cameraLight.position.z = camera.position.z;
         TWEEN.update();
-
         if (particleGroup) {
             particleGroup.tick(dt);
         }
@@ -930,7 +876,6 @@ var _InnokinDisrupterViewer = function () {
         }
         uconfig.width = parseInt(uconfig.width);
         uconfig.height = parseInt(uconfig.height);
-
         config.width = isNaN(uconfig.width) ? config.width : uconfig.width;
         config.height = isNaN(uconfig.height) ? config.height : uconfig.height;
         if (uconfig.containerId) {
@@ -992,13 +937,12 @@ var _InnokinDisrupterViewer = function () {
                     if (child instanceof THREE.Mesh) {
                         var box = new THREE.Box3().setFromObject(child);
                         var bsz = box.size();
-                        olcd = new InnokinLCD(512, 176);
-                        child.material.map = olcd.texture();
-                        child.material.blending = THREE.MultiplyBlending;
+                        olcd = new InnokinLCD(512, 176, scene);
+//                        child.material.map = olcd.texture();
+//                        child.material.blending = THREE.MultiplyBlending;
                         olcd.update();
                     }
                 });
-
             }
 
             if (['startbutton', 'up_button', 'down_button'].indexOf(part.name) > -1) {
@@ -1016,7 +960,6 @@ var _InnokinDisrupterViewer = function () {
                 onLoadComplete()
             }
         });
-
     }
 
     function showLoading() {
@@ -1076,7 +1019,6 @@ var _InnokinDisrupterViewer = function () {
             sbhi.className = 'inner-holder';
             sbh.appendChild(sbhi);
             var evenst = ['mousedown', 'pointerdown', 'touchstart'];
-
             for (var i = 1; i <= 4; i++) {
                 var btn = document.createElement('span');
                 btn.className = 'step-button';
@@ -1127,7 +1069,6 @@ var _InnokinDisrupterViewer = function () {
             }
             step4_tool_buttons.push(csw_mod);
             UI.wrapper.appendChild(csw_mod);
-
             var csw_mod = document.createElement('span');
             csw_mod.className = 'viewer-color-swatches';
             csw_mod.id = 'InnokinCellSwatches';
@@ -1183,16 +1124,13 @@ var _InnokinDisrupterViewer = function () {
             disrupter_groups['step1']['name'] = 'step1';
             scene.add(disrupter_groups['step1']);
             var dx = 0;
-
             for (var di = 0; di < disrupter_matreials.length; di++) {
                 var dclone = disrupter_groups['disrupter'].clone();
                 disrupter_groups['step1'].add(dclone);
                 var dir = (di % 2) ? 1 : -1;
-
                 dx += di * 60 * dir;
                 dclone.position.set(dx + 15, 0, 0);
                 dclone.rotation.set(0, Math.PI / 4, 0);
-
                 var shell = dclone.getObjectByName('mod_shell');
                 if (shell) {
                     var mi = di % disrupter_matreials.length;
@@ -1223,7 +1161,6 @@ var _InnokinDisrupterViewer = function () {
                 [-4, 21, 32],
                 [20.5, 21, 26]
             ];
-
             for (var di = 0; di < 8; di++) {
                 var dclone = disrupter_groups['innocell'].clone();
                 disrupter_groups['tabletop'].add(dclone);
@@ -1261,19 +1198,13 @@ var _InnokinDisrupterViewer = function () {
             extrudeMaterial: 1
 
         });
-
         textGeo.computeBoundingBox();
         material = new THREE.MeshPhongMaterial({color: 0xB3B9C3, shininess: 30, specular: 0xDEDBE6, metal: true, shading: THREE.FlatShading});
-
-
         var centerOffset = -0.5 * (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x);
-
         var textMesh1 = new THREE.Mesh(textGeo, material);
-
         textMesh1.position.x = centerOffset;
         textMesh1.position.y = 60;
         textMesh1.position.z = 0;
-
         textMesh1.rotation.x = 0;
         textMesh1.rotation.y = 0;
         group = new THREE.Group();
@@ -1287,7 +1218,6 @@ var _InnokinDisrupterViewer = function () {
             disrupter_groups['step3']['name'] = 'step3';
             scene.add(disrupter_groups['step3']);
             var dx = 0;
-
             for (var di = 0; di < coil_ohms.length; di++) {
                 var dclone = disrupter_groups['isub_coil02ohm'].clone();
                 disrupter_groups['step3'].add(dclone);
@@ -1299,11 +1229,7 @@ var _InnokinDisrupterViewer = function () {
                 dclone.rotation.set(0, 0, 0);
                 //add ohm label
                 var ohms = createCoilOhmLabelStep3(coil_ohms[di] + ' \u03A9');
-
                 dclone.add(ohms);
-
-
-
                 dclone.visible = false;
                 steps[3]['clones'].push(dclone);
             }
@@ -1410,7 +1336,6 @@ var _InnokinDisrupterViewer = function () {
         disrupter.add(disrupter_groups['innocell']);
         disrupter.add(disrupter_groups['isub_coil02ohm']);
         scene.add(disrupter);
-
         hideAllGroups();
         cloneDisrupterForStep1();
         cloneBatteryForStep2();
@@ -1485,6 +1410,14 @@ var _InnokinDisrupterViewer = function () {
     this.getCamera = function () {
         console.log(camera.position, camera.rotation, orbitcntrl.center, orbitcntrl.target);
     };
+
+    this.getRenderer = function () {
+        return renderer;
+    }
+
+    this.getScene = function () {
+        return scene;
+    }
     this.zoom_oled = function () {
         zoomOled();
     };
@@ -1495,8 +1428,6 @@ var _InnokinDisrupterViewer = function () {
     this.Init = function (uconfig) {
         if (scene)
             return false;
-
-
         clock = new THREE.Clock();
         applyUConfig(uconfig);
         scene = new THREE.Scene();
@@ -1511,7 +1442,6 @@ var _InnokinDisrupterViewer = function () {
         renderer.shadowMapEnabled = true;
         //renderer.sortObjects = false;
         config.container.appendChild(renderer.domElement);
-
         orbitcntrl = new THREE.OrbitControls(camera, renderer.domElement);
         orbitcntrl.noPan = true;
         orbitcntrl.noKeys = true;
@@ -1521,40 +1451,31 @@ var _InnokinDisrupterViewer = function () {
         orbitcntrl.minPolarAngle = Math.PI / 3;
         orbitcntrl.panUp(60);
         orbitcntrl.update();
-
-
         //add the lights
         var lightIntensity = 0.15;
         var coord_mul = 2;
         var lightColor = 0xffffff;
-
         var light1 = new THREE.DirectionalLight(lightColor, lightIntensity);
         light1.position.set(300 * coord_mul, 300 * coord_mul, 0 * coord_mul);
         light1.name = 'StaticLight1';
         //light1.castShadow  = true;
         scene.add(light1);
-
         var light2 = new THREE.DirectionalLight(lightColor, lightIntensity);
         light2.position.set(0 * coord_mul, 300 * coord_mul, 300 * coord_mul);
         light2.name = 'StaticLight2';
         scene.add(light2);
-
         var light3 = new THREE.DirectionalLight(lightColor, lightIntensity);
         light3.position.set(0 * coord_mul, -300 * coord_mul, 300 * coord_mul);
         light3.name = 'StaticLight3';
         scene.add(light3);
-
         var light4 = new THREE.DirectionalLight(lightColor, lightIntensity);
         light4.position.set(-300 * coord_mul, 300 * coord_mul, 0 * coord_mul);
         light4.name = 'StaticLight4';
         scene.add(light4);
-
         var light5 = new THREE.DirectionalLight(lightColor, lightIntensity);
         light5.position.set(0 * coord_mul, -300 * coord_mul, -300 * coord_mul);
         light5.name = 'StaticLight5';
         scene.add(light5);
-
-
         /*var light = new THREE.AmbientLight( 0x404040 ); 
          scene.add( light );*/
 
@@ -1563,9 +1484,7 @@ var _InnokinDisrupterViewer = function () {
         cameraLight.position.y = camera.position.y;
         cameraLight.position.z = camera.position.z;
         scene.add(cameraLight);
-
         addHelpers();
-
         //add sounds
         try {
             for (var a_tag in sounds) {
@@ -1594,19 +1513,14 @@ var _InnokinDisrupterViewer = function () {
         }
         return true;
     };
-
     this.step = function (newstep) {
         setStep(newstep)
     };
-
-
-
     this.start_smoke = function () {
         if (InnokinDisrupterViewer.current_wattage) {
             startSmoking(InnokinDisrupterViewer.current_wattage);
         }
     };
-
     this.stop_smoke = function () {
         stopSmoking();
     }
@@ -1653,10 +1567,13 @@ var _InnokinDisrupterViewer = function () {
     }
 
 };
-
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
+var InnokinLCD = function (width, height, scene) {
+//    console.log(scene);
 
-var InnokinLCD = function (width, height) {
+    
+
+
     var canvas = document.createElement('canvas');
     width = parseInt(width, 10);
     height = parseInt(height, 10);
@@ -1671,14 +1588,13 @@ var InnokinLCD = function (width, height) {
     var onswitchtimer = null;
     var boottimer = null;
     var switch_on_press_count = 0;
-
     //document.body.appendChild(canvas);
     var watts = [6.0, 50.0];
     var volts = [3.0, 7.5];
     var watt_increment = 0.5
     var volt_increment = 0.1;
     var min_ohm = 0.20;
-    var colors = {text: '#FFFFFF', lcd: '#666'};
+    var colors = {text: '#CCCCCC', lcd: '#111'};
     var fontfamily = 'DisrupterLCDFont';
     var current_settings = {
         ohm: min_ohm,
@@ -1689,99 +1605,84 @@ var InnokinLCD = function (width, height) {
         screen: ''
     };
     var screens = {
-        test: ['test', '\uE000'],
+        test: ['test', 'batt'],
         off_message: ['off|click 3x on'],
         boot: ['\uE001', 'innokin|technology'],
         watt_setup: ['0.00\u03A9|0.00v', '00.0w', '\uE000'],
         volt_setup: ['0.00\u03A9|0.00w', '00.0v', '\uE000']
     }
-    var positions = {};
-
-    var tctx = canvas.getContext('2d');
-    tctx.textBaseline = 'top';
-    tctx.font = smallfontsize + 'px ' + fontfamily;
-    tctx.fillStyle = colors.text;
-
-
-    var texture = new THREE.Texture(canvas);
-    texture.minFilter = THREE.LinearFilter;
 
     function _handleSwitchOnOffTimer() {
         switch_on_press_count = 0;
-        drawScreen();
+//        drawScreen();
     }
-
-    function setupPositions() {
-        var cwdth = width;// * 0.90;
-        for (var screen in screens) {
-            positions[screen] = {};
-            var sections = screens[screen].length;
-            var x = 0;
-            var y = topY;
-
-            for (var i = 0; i < sections; i++) {
-                var section_lines = screens[screen][i].split('|');
-                var sec_fsz = section_lines.length == 1 ? fontsize : smallfontsize;
-                var dx = 0;
-                var center = (['off_message', 'boot'].indexOf(screen) > -1) && (section_lines.length == 2)
-                for (var sl = 0; sl < section_lines.length; sl++) {
-                    tctx.font = sec_fsz + 'px ' + fontfamily;
-                    var txtmetrics = tctx.measureText(section_lines[sl]);
-                    var twdth = Math.round(txtmetrics.width);
-                    var _x = center ? (x + (cwdth - x - twdth) / 2) : x;
-                    _x = _x < x ? x : _x;
-                    positions[screen][section_lines[sl]] = {x: _x, y: y + (sec_fsz) * sl, fs: sec_fsz};
-                    dx = twdth > dx ? twdth : dx;
-                }
-                x += dx;
-            }
-            //check maybe we are over the allowed width => recalculate font size;
-
-            if (x > cwdth) {
-                var scale = cwdth / x;
-                for (var fixtext in positions[screen]) {
-                    positions[screen][fixtext].x *= scale;
-                    //positions[screen][fixtext].y *= scale;
-                    //positions[screen][fixtext].fs *= scale;
-                }
-            }
-        }
-    }
-
-
-
-
 
 
     function drawScreen() {
-        tctx.clearRect(0, 0, canvas.width, canvas.height);
-        tctx.fillStyle = colors.lcd;
-        tctx.fillRect(0, 0, canvas.width, canvas.height);
-        tctx.fillStyle = colors.text;
-        console.log(current_settings);
-        if (current_settings.screen && screens[current_settings.screen]) {
-            for (var text in positions[current_settings.screen]) {
-                console.log(text);
-                var _text = text.replace(/0\.00w/, current_settings.watts.toFixed(2) + 'w');
-                _text = _text.replace(/0\.00\u03A9/g, current_settings.ohm.toFixed(2) + '\u03A9');
-                _text = _text.replace(/0\.00v/g, current_settings.volts.toFixed(2) + 'v');
-                _text = _text.replace(/00\.0v/g, current_settings.volts.toFixed(1) + 'v');
-                _text = _text.replace(/00\.0w/g, current_settings.watts.toFixed(1) + 'w');
-                var txt_info = positions[current_settings.screen][text];
-                tctx.font = txt_info.fs + 'px DisrupterLCDFont';
-                tctx.fillText(_text, txt_info.x, txt_info.y);
-            }
+        console.log("DRAWSCREEN CALLED");
+
+
+        theScene = scene;
+        var screenGroup = theScene.getObjectByName('olcd');
+        if (screenGroup) {
+            screenObject = screenGroup.children[0];
+            screenMesh = screenObject.children[0];
+            console.log(screenMesh);
+            screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
+            renderer = InnokinDisrupterViewer.getRenderer();
+            screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+            screenMaterial = new THREE.MeshPhongMaterial({map: screenDynamicTexture.texture});
+//            screenMaterial.map = null;
+            screenMesh.material = screenMaterial;
+            console.log(screenMaterial);
+
+            screenDynamicTexture.drawText('\uE001', 25, 130, '#FFFFFF', (0.6 * 190) + "px DisrupterLCDFont");
+            screenDynamicTexture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+            screenDynamicTexture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+
+
         }
 
-        texture.needsUpdate = true;
+
+////        screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+//        console.log(screenMesh);
+//        console.log(this);
+//        tctx.clearRect(0, 0, canvas.width, canvas.height);
+//        tctx.fillStyle = colors.lcd;
+//        tctx.fillRect(0, 0, canvas.width, canvas.height);
+//        tctx.fillStyle = colors.text;
+//        canvas.drawText('\uE001', 25, 130, '#FDFDFD', (0.6 * 190) + "px DisrupterLCDFont");
+//        texture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+//        texture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+
+
+
+
+//        if (current_settings.screen && screens[current_settings.screen]) {
+////            console.log(current_settings);
+//
+//            for (var text in positions[current_settings.screen]) {
+//                console.log(text);
+////console.log(positions)
+//                var _text = text.replace(/0\.00w/, current_settings.watts.toFixed(2) + 'w');
+//                _text = _text.replace(/0\.00\u03A9/g, current_settings.ohm.toFixed(2) + '\u03A9');
+////                _text = _text.replace(/0\.00v/g, current_settings.volts.toFixed(2) + 'v');
+////                _text = _text.replace(/00\.0v/g, current_settings.volts.toFixed(1) + 'v');
+////                _text = _text.replace(/00\.0w/g, current_settings.watts.toFixed(1) + 'w');
+//                var txt_info = positions[current_settings.screen][text];
+//                tctx.font = txt_info.fs + 'px DisrupterLCDFont';
+//                tctx.fillText(_text, txt_info.x, txt_info.y);
+//            }
+//        }
+//
+//        texture.needsUpdate = true;
     }
 
-    setupPositions();
 
+//    setupPositions();
     this.texture = function () {
         return texture;
     };
-
     this.update = function (action) {
 //        console.log(action);
         switch (action) {
@@ -1813,7 +1714,7 @@ var InnokinLCD = function (width, height) {
                                         drawScreen();
                                         switch_on_press_count = 0;
                                         if (InnokinDisrupterViewer.current_wattage == null) {
-                                            InnokinDisrupterViewer.current_wattage = 6;
+                                            InnokinDisrupterViewer.current_wattage = current_settings.watts;
                                         }
                                     }, 600);
                         }
@@ -1826,10 +1727,13 @@ var InnokinLCD = function (width, height) {
             case 'upBtn':
                 //Only Act if the device has the ON status
                 if (current_settings.on) {
-                    InnokinDisrupterViewer.current_wattage += 0.5;
+                    if (InnokinDisrupterViewer.current_wattage < watts[1]) {
+                        InnokinDisrupterViewer.current_wattage += watt_increment;
+                    } else {
+                        InnokinDisrupterViewer.current_wattage = watts[0];
+                    }
+
                     current_settings.watts = InnokinDisrupterViewer.current_wattage;
-                    console.log("Current Wattage :" + InnokinDisrupterViewer.current_wattage);
-                    console.log("Current SETTINGS :" + current_settings.watts);
                     setTimeout(function () {
                         InnokinDisrupterViewer.refresh_smoke();
                     }, 200);
@@ -1837,39 +1741,18 @@ var InnokinLCD = function (width, height) {
                 break;
             case 'downBtn':
                 if (current_settings.on) {
-                    InnokinDisrupterViewer.current_wattage -= 0.5;
-                    console.log("Current Wattage :" + InnokinDisrupterViewer.current_wattage);
+                    if (InnokinDisrupterViewer.current_wattage > watts[0]) {
+                        InnokinDisrupterViewer.current_wattage -= watt_increment;
+                    } else {
+                        InnokinDisrupterViewer.current_wattage = watts[1];
+                    }
                     current_settings.watts = InnokinDisrupterViewer.current_wattage;
-                    console.log("Current SETTINGS :" + current_settings.watts);
                     setTimeout(function () {
                         InnokinDisrupterViewer.refresh_smoke();
                     }, 200);
-
                 }
                 break;
-//            case 'up':
-//                switch (current_settings.screen) {
-//                    case 'watt_setup':
-//                        console.log('UP PRESSED @ state WATT SETUP');
-//                        break;
-//                    case 'volt_setup':
-//                        console.log('UP PRESSED @ state VOLT SETUP');
-//
-//                        break;
-//                }
-//                break;
-//            case 'down':
-//                switch (current_settings.screen) {
-//                    case 'watt_setup':
-//                        console.log('DOWN PRESSED @ state WATT SETUP');
-//                        break;
-//                    case 'volt_setup':
-//                        console.log('DOWN PRESSED @ state VOLT SETUP');
-//                        break;
-//                }
-//                break;
             default:
-
         }
         drawScreen();
     }
