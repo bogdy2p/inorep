@@ -1604,6 +1604,10 @@ var _InnokinDisrupterViewer = function () {
         startSmoking();
     };
 
+    this.stop_smoke = function () {
+        stopSmoking();
+    }
+
     function startSmoking() {
         particleGroup = new SPE.Group({
             texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
@@ -1630,7 +1634,10 @@ var _InnokinDisrupterViewer = function () {
         particleGroup.addEmitter(emitter);
         scene.add(particleGroup.mesh);
     }
-
+    function stopSmoking() {
+        scene.remove(particleGroup.mesh);
+        smoking = false;
+    }
 
 };
 
