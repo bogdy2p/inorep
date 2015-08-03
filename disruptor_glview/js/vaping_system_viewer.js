@@ -1,7 +1,7 @@
 var _InnokinDisrupterViewer = function () {
 
     var debug_mode = true;
-    var scene, camera, renderer, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
+    var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
     var remainingToLoad = 0;
@@ -899,13 +899,24 @@ var _InnokinDisrupterViewer = function () {
         return false;
     }
 
-    function render() {
-        requestAnimationFrame(render);
+    function animate() {
+        requestAnimationFrame(animate);
+        render(clock.getDelta());
+        TWEEN.update();
+    }
+
+    function render(dt) {
+//        console.log(dt);
+//        requestAnimationFrame(render);
         //orbitcntrl.update();
         cameraLight.position.x = camera.position.x;
         cameraLight.position.y = camera.position.y;
         cameraLight.position.z = camera.position.z;
         TWEEN.update();
+
+        if (particleGroup) {
+            particleGroup.tick(dt);
+        }
 
         renderer.render(scene, camera);
     }
@@ -1483,6 +1494,8 @@ var _InnokinDisrupterViewer = function () {
         if (scene)
             return false;
 
+
+        clock = new THREE.Clock();
         applyUConfig(uconfig);
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(50, config.width / config.height, 1, 800);
@@ -1570,7 +1583,8 @@ var _InnokinDisrupterViewer = function () {
 
         buildUI();
         LoadDisruptorObjects();
-        render();
+        animate();
+//        render();
         raycaster = new THREE.Raycaster();
         var evenst = ['mousedown', 'mouseup', 'mousemove', 'pointerdown', 'pointerup', 'pointermove', 'touchstart', 'touchend', 'touchmove'];
         for (var ei = 0; ei < evenst.length; ei++) {
@@ -1583,6 +1597,46 @@ var _InnokinDisrupterViewer = function () {
         setStep(newstep)
 
     };
+
+
+
+    this.start_smoke = function () {
+        startSmoking();
+    };
+
+    function startSmoking() {
+        particleGroup = new SPE.Group({
+            texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
+            maxAge: 5,
+            hasPerspective: true,
+            colorize: true,
+        });
+        emitter = new SPE.Emitter({
+            position: new THREE.Vector3(-11.5, 47, -2),
+            positionSpread: new THREE.Vector3(0, 0, 0),
+            acceleration: new THREE.Vector3(0, 30, 00),
+            accelerationSpread: new THREE.Vector3(0, 5, 0),
+            velocity: new THREE.Vector3(0, 0, 0),
+            velocitySpread: new THREE.Vector3(10, 10, 10),
+            colorStart: new THREE.Color(0xFFFFFF),
+            colorEnd: new THREE.Color(0x000000),
+            sizeStart: 200,
+            sizeEnd: 1500,
+            particleCount: 200,
+//            particleCount: device_variables.watt / 10 * 3,
+        });
+
+        particleGroup.addEmitter(emitter);
+        scene.add(particleGroup.mesh);
+//        smoking = true;
+//        console.log(scene);
+//        console.log(emitter);
+//        console.log(particleGroup);
+//        console.log("Particlegroup and emmitter added");
+//        
+    }
+
+
 };
 
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
@@ -1681,33 +1735,6 @@ var InnokinLCD = function (width, height) {
 
 
 
-    function startSmoking() {
-
-        particleGroup = new SPE.Group({
-            texture: THREE.ImageUtils.loadTexture('images/smokeparticle.png'),
-            maxAge: 5,
-            hasPerspective: true,
-            colorize: true
-        });
-        emitter = new SPE.Emitter({
-            position: new THREE.Vector3(-11.5, 47, -2),
-            positionSpread: new THREE.Vector3(0, 0, 0),
-            acceleration: new THREE.Vector3(0, 30, 00),
-            accelerationSpread: new THREE.Vector3(0, 5, 0),
-            velocity: new THREE.Vector3(0, 0, 0),
-            velocitySpread: new THREE.Vector3(10, 10, 10),
-            colorStart: new THREE.Color(0x111111),
-            colorEnd: new THREE.Color(0x000000),
-            sizeStart: 15,
-            sizeEnd: 500,
-            particleCount: device_variables.watt / 10 * 3,
-        });
-        particleGroup.addEmitter(emitter);
-        scene.add(particleGroup.mesh);
-        smoking = true;
-
-
-    }
 
 
 
@@ -1782,7 +1809,7 @@ var InnokinLCD = function (width, height) {
             case 'downBtn':
 //                current_settings.screen = 'volt_setup';
                 console.log(action);
-                startSmoking();
+                InnokinDisrupterViewer.start_smoke();
                 break;
 //            case 'up':
 //                switch (current_settings.screen) {
