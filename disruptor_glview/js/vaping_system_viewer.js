@@ -6,6 +6,8 @@ var _InnokinDisrupterViewer = function () {
     var reached_step4 = debug_mode;
     var remainingToLoad = 0;
     var totalToLoad = 0;
+    var smoking = false;
+    var current_wattage = null;
     var resource_base = './disruptor_glview/resources/';
     var sounds = {
         slide_in: {src: ['sounds/disrupter_lock.mp3', 'sounds/disrupter_lock.ogg'], obj: null},
@@ -1595,48 +1597,59 @@ var _InnokinDisrupterViewer = function () {
 
     this.step = function (newstep) {
         setStep(newstep)
-
     };
 
 
 
     this.start_smoke = function () {
-        startSmoking();
+        if (InnokinDisrupterViewer.current_wattage) {
+            startSmoking(InnokinDisrupterViewer.current_wattage);
+        }
     };
 
     this.stop_smoke = function () {
         stopSmoking();
     }
 
-    function startSmoking() {
-        particleGroup = new SPE.Group({
-            texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
-            maxAge: 5,
-            hasPerspective: true,
-            colorize: true,
-        });
-        emitter = new SPE.Emitter({
-            position: new THREE.Vector3(-22, 152, -3),
-            positionSpread: new THREE.Vector3(0, 0, 0),
-            acceleration: new THREE.Vector3(0, 20, 00),
-            accelerationSpread: new THREE.Vector3(0, 0, 0),
-            velocity: new THREE.Vector3(0, 0, 0),
-//            velocitySpread: new THREE.Vector3(10, 0, 10),
-            velocitySpread: new THREE.Vector3(0, 0, 0),
-            colorStart: new THREE.Color(0xFFFFFF),
-            colorEnd: new THREE.Color(0xFFFFFF),
-            sizeStart: 5,
-            sizeEnd: 200,
-            particleCount: 20,
-//            particleCount: device_variables.watt / 10 * 3,
-        });
+    this.refresh_smoke = function () {
+        if (smoking) {
+            stopSmoking();
+            startSmoking(InnokinDisrupterViewer.current_wattage);
+        }
+    }
 
-        particleGroup.addEmitter(emitter);
-        scene.add(particleGroup.mesh);
+    function startSmoking(currentWattage) {
+        if (!smoking) {
+            particleGroup = new SPE.Group({
+                texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
+                maxAge: 5,
+                hasPerspective: true,
+                colorize: true,
+            });
+            emitter = new SPE.Emitter({
+                position: new THREE.Vector3(-22, 152, -3),
+                positionSpread: new THREE.Vector3(0, 0, 0),
+                acceleration: new THREE.Vector3(0, 20, 00),
+                accelerationSpread: new THREE.Vector3(0, 0, 0),
+                velocity: new THREE.Vector3(0, 0, 0),
+//            velocitySpread: new THREE.Vector3(10, 0, 10),
+                velocitySpread: new THREE.Vector3(0, 0, 0),
+                colorStart: new THREE.Color(0xFFFFFF),
+                colorEnd: new THREE.Color(0xFFFFFF),
+                sizeStart: 5,
+                sizeEnd: 200,
+                particleCount: currentWattage * 10 / 3,
+            });
+            particleGroup.addEmitter(emitter);
+            scene.add(particleGroup.mesh);
+            smoking = true;
+        }
     }
     function stopSmoking() {
-        scene.remove(particleGroup.mesh);
-        smoking = false;
+        if (smoking) {
+            scene.remove(particleGroup.mesh);
+            smoking = false;
+        }
     }
 
 };
@@ -1745,13 +1758,15 @@ var InnokinLCD = function (width, height) {
         tctx.fillStyle = colors.lcd;
         tctx.fillRect(0, 0, canvas.width, canvas.height);
         tctx.fillStyle = colors.text;
+        console.log(current_settings);
         if (current_settings.screen && screens[current_settings.screen]) {
             for (var text in positions[current_settings.screen]) {
+                console.log(text);
                 var _text = text.replace(/0\.00w/, current_settings.watts.toFixed(2) + 'w');
                 _text = _text.replace(/0\.00\u03A9/g, current_settings.ohm.toFixed(2) + '\u03A9');
                 _text = _text.replace(/0\.00v/g, current_settings.volts.toFixed(2) + 'v');
                 _text = _text.replace(/00\.0v/g, current_settings.volts.toFixed(1) + 'v');
-                _text = _text.replace(/00\.0w/g, current_settings.volts.toFixed(1) + 'w');
+                _text = _text.replace(/00\.0w/g, current_settings.watts.toFixed(1) + 'w');
                 var txt_info = positions[current_settings.screen][text];
                 tctx.font = txt_info.fs + 'px DisrupterLCDFont';
                 tctx.fillText(_text, txt_info.x, txt_info.y);
@@ -1794,24 +1809,43 @@ var InnokinLCD = function (width, height) {
                             setTimeout(
                                     function () {
                                         current_settings.booting = false;
-                                        current_settings.screen = 'volt_setup';
+                                        current_settings.screen = 'watt_setup';
                                         drawScreen();
                                         switch_on_press_count = 0;
+                                        if (InnokinDisrupterViewer.current_wattage == null) {
+                                            InnokinDisrupterViewer.current_wattage = 6;
+                                        }
                                     }, 600);
                         }
                     }
                 } else {
                     //start switch off process
+                    //NO SWITCH OFF YET
                 }
                 break;
             case 'upBtn':
-//                current_settings.screen = 'watt_setup';
-                console.log(action);
+                //Only Act if the device has the ON status
+                if (current_settings.on) {
+                    InnokinDisrupterViewer.current_wattage += 0.5;
+                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
+                    console.log("Current Wattage :" + InnokinDisrupterViewer.current_wattage);
+                    console.log("Current SETTINGS :" + current_settings.watts);
+                    setTimeout(function () {
+                        InnokinDisrupterViewer.refresh_smoke();
+                    }, 200);
+                }
                 break;
             case 'downBtn':
-//                current_settings.screen = 'volt_setup';
-                console.log(action);
-                InnokinDisrupterViewer.start_smoke();
+                if (current_settings.on) {
+                    InnokinDisrupterViewer.current_wattage -= 0.5;
+                    console.log("Current Wattage :" + InnokinDisrupterViewer.current_wattage);
+                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
+                    console.log("Current SETTINGS :" + current_settings.watts);
+                    setTimeout(function () {
+                        InnokinDisrupterViewer.refresh_smoke();
+                    }, 200);
+
+                }
                 break;
 //            case 'up':
 //                switch (current_settings.screen) {
