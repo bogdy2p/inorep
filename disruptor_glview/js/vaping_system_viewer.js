@@ -126,6 +126,14 @@ var _InnokinDisrupterViewer = function () {
         title: undefined,
         wrapper: undefined
     };
+
+    var device_variables = {
+        ohmz: 5,
+        volt: 63,
+        watt: 450,
+        battery: 1000,
+    }
+
     window.requestAnimationFrame = (function ()
     {
         return window.requestAnimationFrame ||
@@ -1572,19 +1580,19 @@ var _InnokinDisrupterViewer = function () {
         }
     }
 
-    this.generalStartScreen = function () {
+//=============================================================================
+//PBC SCREEN LOGIC
+
+    generalStartScreen = function () {
         console.log(scene);
         var small_screen_already_exists = scene.getObjectByName('smallScreen');
         if (!small_screen_already_exists) {
             screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
             screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
             planeGeometry1 = new THREE.PlaneBufferGeometry(45, 20, 30, 30);
-            planeGeometry2 = new THREE.PlaneBufferGeometry(112, 50, 30, 30);
             planeMaterial = new THREE.MeshBasicMaterial({map: screenDynamicTexture.texture});
             ScreenPlane = new THREE.Mesh(planeGeometry1, planeMaterial);
             ScreenPlane.name = 'smallScreen';
-            LargeScreen = new THREE.Mesh(planeGeometry2, planeMaterial);
-            LargeScreen.name = 'largeScreen';
             groupMecanism = scene.getObjectByName('disrupter');
             if (groupMecanism) {
                 console.log("THERE IS A GRUPMECANISM");
@@ -1604,13 +1612,105 @@ var _InnokinDisrupterViewer = function () {
         }
     }
 
-    this.generalStopScreen = function () {
+    generalStopScreen = function (time) {
         var small_screen_already_exists = scene.getObjectByName('smallScreen');
         if (small_screen_already_exists) {
             setTimeout(function () {
                 groupMecanism = scene.getObjectByName('disrupter');
                 groupMecanism.remove(ScreenPlane);
-            }, 10);
+            }, time);
+        }
+    }
+
+    this.startDisruptorWithLogo = function () {
+        generalStartScreen();
+
+        screenDynamicTexture.drawText('\uE001', 25, 130, '#FDFDFD', (0.6 * 190) + "px DisrupterLCDFont");
+        screenDynamicTexture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+        screenDynamicTexture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+
+        setTimeout(function () {
+            screenDynamicTexture.clear('#667788');
+            displayDisruptor();
+        }, 1500);
+    }
+
+    displayDisruptor = function () {
+        generalStartScreen();
+        drawAllFourOnTexture(screenDynamicTexture, 'watt');
+    }
+
+    this.displayStartInformation = function () {
+        generalStartScreen();
+        screenDynamicTexture.drawText('OFF', 150, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+        screenDynamicTexture.drawText('click 3x on', 45, 145, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+        generalStopScreen(1500);
+    }
+
+    function drawAllFourOnTexture(screenDynamicTexture, mode) {
+        fineTuneVariablesDisplay(mode);
+
+        switch (mode) {
+            case "watt":
+                screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 10, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                //Draw Volts
+                screenDynamicTexture.drawText(volt_ammount_display + 'v', 14, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                // Draw WATTAGE AMMOUNT INFORMATION
+                screenDynamicTexture.drawText(watt_ammount_display, 155, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
+                // Draw WATTAGE LOGO Information
+                screenDynamicTexture.drawText('w', 289, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
+                //Draw Battery
+                screenDynamicTexture.drawText('\uE000', 345, 120, '#FFFFFF', (0.3 * 256) + "px DisrupterLCDFont");
+                break;
+            case "volt":
+                screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 10, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                //Draw Volts
+                screenDynamicTexture.drawText(watt_ammount_display + 'w', 12, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                // Draw WATTAGE AMMOUNT INFORMATION
+                screenDynamicTexture.drawText(volt_ammount_display, 150, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
+                // Draw WATTAGE LOGO Information
+                screenDynamicTexture.drawText('v', 289, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
+                //Draw Battery
+                screenDynamicTexture.drawText('\uE000', 345, 120, '#FFFFFF', (0.3 * 256) + "px DisrupterLCDFont");
+                break;
+        }
+
+    }
+
+    function fineTuneVariablesDisplay(mode) {
+        var voltz = (device_variables.volt / 10).toString();
+        var wattz = (device_variables.watt / 10).toString();
+        var ohmz = (device_variables.ohmz / 10).toString();
+        volt_ammount_display = voltz;
+        watt_ammount_display = wattz;
+        ohmz_ammount_display = ohmz;
+        ///////////////////////////////////////////////////////
+        //For The VOLT PART
+        ///////////////////////////////////////////////////////
+        if (device_variables.volt % 10 == 0) {
+            volt_ammount_display += '.0';
+        }
+        volt_ammount_display = volt_ammount_display + '0';
+
+        ///////////////////////////////////////////////////////
+        // For the WATT PART
+        ///////////////////////////////////////////////////////
+        if (device_variables.watt % 10 == 5) {
+            watt_ammount_display = wattz;
+        } else {
+            watt_ammount_display = wattz + '.0';
+        }
+        if (device_variables.watt < 100) {
+            watt_ammount_display = ' ' + watt_ammount_display;
+        }
+        ///////////////////////////////////////////////////////
+        // For the OHMZ PART
+        ///////////////////////////////////////////////////////
+
+        if (device_variables.ohmz % 10 == 0) {
+            ohmz_ammount_display += '.00';
+        } else {
+            ohmz_ammount_display += '0';
         }
     }
 
