@@ -127,13 +127,20 @@ var _InnokinDisrupterViewer = function () {
         wrapper: undefined
     };
 
+
+
+    ///////////////////////////////////////////////////////////////////////////
     var device_variables = {
         ohmz: 5,
         volt: 63,
         watt: 450,
         battery: 1000,
     }
-
+    var device_status = "OFF";
+    var device_state = 'watt';
+    var startButtonCounter = 0;
+    var startButtonCounter2 = 0;
+    ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
     {
         return window.requestAnimationFrame ||
@@ -820,19 +827,23 @@ var _InnokinDisrupterViewer = function () {
                             }
                             break;
                         case 4:
-//                            console.log(picked.name);
                             switch (picked.name) {
                                 case 'startbutton':
+
                                     console.log("BIGBUTTONPRESS");
-//                                    olcd.update('on');
+                                    if (device_status == 'OFF') {
+                                        startButtonClick();
+                                    } else {
+                                        startButtonClickedDeviceStarted();
+                                    }
                                     break;
                                 case 'up_button':
                                     console.log("UPBUTTON");
-//                                    olcd.update('upBtn');
+                                    plusButtonClick();
                                     break;
                                 case 'down_button':
                                     console.log("DOWNBUTTON");
-//                                    olcd.update('downBtn');
+                                    minusButtonClick();
                                     break;
                             }
                             break;
@@ -840,6 +851,9 @@ var _InnokinDisrupterViewer = function () {
                 }
                 break;
             case 'mouseup':
+                resetButtonPositions();
+
+                break;
             case 'touchend':
             case 'pointerup':
                 break;
@@ -866,8 +880,6 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function render(dt) {
-//        console.log(dt);
-//        requestAnimationFrame(render);
         //orbitcntrl.update();
         cameraLight.position.x = camera.position.x;
         cameraLight.position.y = camera.position.y;
@@ -876,7 +888,6 @@ var _InnokinDisrupterViewer = function () {
         if (particleGroup) {
             particleGroup.tick(dt);
         }
-
         renderer.render(scene, camera);
     }
 
@@ -1424,7 +1435,6 @@ var _InnokinDisrupterViewer = function () {
     this.getCamera = function () {
         console.log(camera.position, camera.rotation, orbitcntrl.center, orbitcntrl.target);
     };
-
     this.getRenderer = function () {
         return renderer;
     }
@@ -1624,11 +1634,9 @@ var _InnokinDisrupterViewer = function () {
 
     this.startDisruptorWithLogo = function () {
         generalStartScreen();
-
         screenDynamicTexture.drawText('\uE001', 25, 130, '#FDFDFD', (0.6 * 190) + "px DisrupterLCDFont");
         screenDynamicTexture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
         screenDynamicTexture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
-
         setTimeout(function () {
             screenDynamicTexture.clear('#667788');
             displayDisruptor();
@@ -1649,7 +1657,6 @@ var _InnokinDisrupterViewer = function () {
 
     function drawAllFourOnTexture(screenDynamicTexture, mode) {
         fineTuneVariablesDisplay(mode);
-
         switch (mode) {
             case "watt":
                 screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 10, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
@@ -1691,7 +1698,6 @@ var _InnokinDisrupterViewer = function () {
             volt_ammount_display += '.0';
         }
         volt_ammount_display = volt_ammount_display + '0';
-
         ///////////////////////////////////////////////////////
         // For the WATT PART
         ///////////////////////////////////////////////////////
@@ -1715,17 +1721,147 @@ var _InnokinDisrupterViewer = function () {
     }
 
 
+    function startButtonClick() {
+        var startButton = scene.getObjectByName('startbutton');
+        var twoClicksDifference = 0;
+        var threeClicksDifference = 0;
+        startButton.position.x += 0.3;
+        startButtonCounter += 1;
+        startButtonCounter2 += 1;
+        if (device_status === "OFF") {
+            startButtonPushStart = clock.elapsedTime;
+            startButtonPushed = true;
+            if (startButtonCounter % 3 == 1) {
+                clearTimeout();
+                startClick1 = clock.elapsedTime;
+                timer_running = true;
+                setTimeout(function () {
+                    if (timer_running) {
+                        InnokinDisrupterViewer.displayStartInformation();
+//                                    console.log("the 400 ms timeout has been exceeded or too many clicks");
+                    }
+//                else {
+////                    if (startButtonCounter2 > 0)
+////                        if ((startButtonCounter2 % 3) == 0)
+////                        {
+//////                                            console.log("I THINK WE SHOULD START THE LIGHTER (LOGO)");
+//////                                            console.log(startButtonCounter2);
+////                        }
+//                }
+                }, 400);
+            }
+            if (startButtonCounter % 3 == 2) {
+                clearTimeout();
+                startClick2 = clock.elapsedTime;
+                twoClicksDifference = startClick2 - startClick1;
+                timer_running = false;
+//                            console.log("2Clizks");
+//                            console.log(twoClicksDifference);
+            }
+            if (startButtonCounter % 3 == 0) {
+                clearTimeout();
+                startClick3 = clock.elapsedTime;
+                threeClicksDifference = startClick3 - startClick1;
+                timer_running = false;
+//                            startButtonCounter = 0;
+//                            console.log("3Clizks");
+//                            console.log(threeClicksDifference);
+                InnokinDisrupterViewer.startDisruptorWithLogo();
+                device_status = "ON";
+            }
+//        console.log("ClickNUMBER");
+//        console.log(startButtonCounter);
+//                        
+        }
+        setTimeout(function () {
+            timer_running = true;
+            startButtonCounter = 0;
+        }, 600);
+        if (device_status === "ON") {
+//                        alert('THE DEVICE IS ONLINE');
+        }
+    }
+
+    function plusButtonClick() {
+
+        var buttonSmall1 = scene.getObjectByName('up_button');
+        buttonSmall1.position.x += 0.3;
+        if (device_status === "ON") {
+            switch (device_state) {
+                case 'volt':
+                    if (device_variables.volt < 74.1) {
+                        device_variables.volt += 1;
+                    } else {
+                        device_variables.volt = 30;
+                    }
+                    device_variables.volt.toFixed(2);
+                    refreshDisruptorInformations();
+                    break;
+                case 'watt':
+                    if (device_variables.watt < 496) {
+                        device_variables.watt += 5;
+                    } else {
+                        device_variables.watt = 60;
+                    }
+                    refreshDisruptorInformations();
+                    clearTimeout(resetTimeout);
+                    resetTimeout = setTimeout(function () {
+                        resetParticlesWithNewInfo();
+                    }, 500);
+                    break;
+            }
+        }
+
+    }
+
+    function minusButtonClick() {
+//        console.log("Minusbutton click LOGGED");
+        var buttonSmall2 = scene.getObjectByName('down_button');
+        buttonSmall2.position.x += 0.3;
+        if (device_status === "ON") {
+            switch (device_state) {
+                case 'volt':
+                    console.log('volt');
+
+                    if (device_variables.volt > 31) {
+                        device_variables.volt -= 1;
+                    } else {
+                        device_variables.volt = 75;
+                    }
+                    refreshDisruptorInformations();
+                    break;
+                case 'watt':
+                    console.log('watt');
+                    if (device_variables.watt > 64) {
+                        device_variables.watt -= 5;
+                    } else {
+                        device_variables.watt = 500;
+                    }
+                    refreshDisruptorInformations();
+                    clearTimeout(resetTimeout);
+                    resetTimeout = setTimeout(function () {
+                        resetParticlesWithNewInfo();
+                    }, 500);
+                    break;
+            }
+        }
+    }
+
+    function resetButtonPositions() {
+        var startButton = scene.getObjectByName('startbutton');
+        var buttonSmall1 = scene.getObjectByName('up_button');
+        var buttonSmall2 = scene.getObjectByName('down_button');
+        startButton.position.x = 0;
+        buttonSmall1.position.x = 0;
+        buttonSmall2.position.x = 0;
+//        startButtonPushed = false;
+//        clearTimeout(playSmoke);
+//        clearTimeout(removeSmoke);
+    }
+
+
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
-
-
-
-
-
-
-
-
-
 //var InnokinLCD = function (width, height, scene) {
 ////    console.log(scene);
 //
