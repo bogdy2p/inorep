@@ -815,13 +815,16 @@ var _InnokinDisrupterViewer = function () {
 //                            console.log(picked.name);
                             switch (picked.name) {
                                 case 'startbutton':
-                                    olcd.update('on');
+                                    console.log("BIGBUTTONPRESS");
+//                                    olcd.update('on');
                                     break;
                                 case 'up_button':
-                                    olcd.update('upBtn');
+                                    console.log("UPBUTTON");
+//                                    olcd.update('upBtn');
                                     break;
                                 case 'down_button':
-                                    olcd.update('downBtn');
+                                    console.log("DOWNBUTTON");
+//                                    olcd.update('downBtn');
                                     break;
                             }
                             break;
@@ -933,14 +936,17 @@ var _InnokinDisrupterViewer = function () {
                 });
             }
             if (part.name === 'olcd') {
+                var material = new THREE.MeshPhongMaterial(part.material);
                 imp_obj.traverse(function (child) {
+                    
                     if (child instanceof THREE.Mesh) {
-                        var box = new THREE.Box3().setFromObject(child);
-                        var bsz = box.size();
-                        olcd = new InnokinLCD(512, 176, scene);
+                        child.material = material;
+//                        var box = new THREE.Box3().setFromObject(child);
+//                        var bsz = box.size();
+//                        olcd = new InnokinLCD(512, 176, scene);
 //                        child.material.map = olcd.texture();
 //                        child.material.blending = THREE.MultiplyBlending;
-                        olcd.update();
+//                        olcd.update();
                     }
                 });
             }
@@ -1568,192 +1574,192 @@ var _InnokinDisrupterViewer = function () {
 
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
-var InnokinLCD = function (width, height, scene) {
-//    console.log(scene);
-
-    
-
-
-    var canvas = document.createElement('canvas');
-    width = parseInt(width, 10);
-    height = parseInt(height, 10);
-    width = isNaN(width) ? 230 : width;
-    height = isNaN(height) ? 74 : height;
-    canvas.width = width;
-    canvas.height = height;
-    var fontsize = Math.round(height * 0.63);
-    var topY = Math.ceil((height - fontsize) / 2)
-    var smallfontsize = Math.round(fontsize / 2);
-    var three_x_press_delay = 800; //ms
-    var onswitchtimer = null;
-    var boottimer = null;
-    var switch_on_press_count = 0;
-    //document.body.appendChild(canvas);
-    var watts = [6.0, 50.0];
-    var volts = [3.0, 7.5];
-    var watt_increment = 0.5
-    var volt_increment = 0.1;
-    var min_ohm = 0.20;
-    var colors = {text: '#CCCCCC', lcd: '#111'};
-    var fontfamily = 'DisrupterLCDFont';
-    var current_settings = {
-        ohm: min_ohm,
-        watts: watts[0],
-        volts: volts[0],
-        on: false,
-        booting: false,
-        screen: ''
-    };
-    var screens = {
-        test: ['test', 'batt'],
-        off_message: ['off|click 3x on'],
-        boot: ['\uE001', 'innokin|technology'],
-        watt_setup: ['0.00\u03A9|0.00v', '00.0w', '\uE000'],
-        volt_setup: ['0.00\u03A9|0.00w', '00.0v', '\uE000']
-    }
-
-    function _handleSwitchOnOffTimer() {
-        switch_on_press_count = 0;
-//        drawScreen();
-    }
-
-
-    function drawScreen() {
-        console.log("DRAWSCREEN CALLED");
-
-
-        theScene = scene;
-        var screenGroup = theScene.getObjectByName('olcd');
-        if (screenGroup) {
-            screenObject = screenGroup.children[0];
-            screenMesh = screenObject.children[0];
-            console.log(screenMesh);
-            screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
-            renderer = InnokinDisrupterViewer.getRenderer();
-            screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
-            screenMaterial = new THREE.MeshPhongMaterial({map: screenDynamicTexture.texture});
-//            screenMaterial.map = null;
-            screenMesh.material = screenMaterial;
-            console.log(screenMaterial);
-
-            screenDynamicTexture.drawText('\uE001', 25, 130, '#FFFFFF', (0.6 * 190) + "px DisrupterLCDFont");
-            screenDynamicTexture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
-            screenDynamicTexture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
-
-
-        }
-
-
-////        screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
-//        console.log(screenMesh);
-//        console.log(this);
-//        tctx.clearRect(0, 0, canvas.width, canvas.height);
-//        tctx.fillStyle = colors.lcd;
-//        tctx.fillRect(0, 0, canvas.width, canvas.height);
-//        tctx.fillStyle = colors.text;
-//        canvas.drawText('\uE001', 25, 130, '#FDFDFD', (0.6 * 190) + "px DisrupterLCDFont");
-//        texture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
-//        texture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
-
-
-
-
-//        if (current_settings.screen && screens[current_settings.screen]) {
-////            console.log(current_settings);
+//var InnokinLCD = function (width, height, scene) {
+////    console.log(scene);
 //
-//            for (var text in positions[current_settings.screen]) {
-//                console.log(text);
-////console.log(positions)
-//                var _text = text.replace(/0\.00w/, current_settings.watts.toFixed(2) + 'w');
-//                _text = _text.replace(/0\.00\u03A9/g, current_settings.ohm.toFixed(2) + '\u03A9');
-////                _text = _text.replace(/0\.00v/g, current_settings.volts.toFixed(2) + 'v');
-////                _text = _text.replace(/00\.0v/g, current_settings.volts.toFixed(1) + 'v');
-////                _text = _text.replace(/00\.0w/g, current_settings.watts.toFixed(1) + 'w');
-//                var txt_info = positions[current_settings.screen][text];
-//                tctx.font = txt_info.fs + 'px DisrupterLCDFont';
-//                tctx.fillText(_text, txt_info.x, txt_info.y);
-//            }
+//    
+//
+//
+//    var canvas = document.createElement('canvas');
+//    width = parseInt(width, 10);
+//    height = parseInt(height, 10);
+//    width = isNaN(width) ? 230 : width;
+//    height = isNaN(height) ? 74 : height;
+//    canvas.width = width;
+//    canvas.height = height;
+//    var fontsize = Math.round(height * 0.63);
+//    var topY = Math.ceil((height - fontsize) / 2)
+//    var smallfontsize = Math.round(fontsize / 2);
+//    var three_x_press_delay = 800; //ms
+//    var onswitchtimer = null;
+//    var boottimer = null;
+//    var switch_on_press_count = 0;
+//    //document.body.appendChild(canvas);
+//    var watts = [6.0, 50.0];
+//    var volts = [3.0, 7.5];
+//    var watt_increment = 0.5
+//    var volt_increment = 0.1;
+//    var min_ohm = 0.20;
+//    var colors = {text: '#CCCCCC', lcd: '#111'};
+//    var fontfamily = 'DisrupterLCDFont';
+//    var current_settings = {
+//        ohm: min_ohm,
+//        watts: watts[0],
+//        volts: volts[0],
+//        on: false,
+//        booting: false,
+//        screen: ''
+//    };
+//    var screens = {
+//        test: ['test', 'batt'],
+//        off_message: ['off|click 3x on'],
+//        boot: ['\uE001', 'innokin|technology'],
+//        watt_setup: ['0.00\u03A9|0.00v', '00.0w', '\uE000'],
+//        volt_setup: ['0.00\u03A9|0.00w', '00.0v', '\uE000']
+//    }
+//
+//    function _handleSwitchOnOffTimer() {
+//        switch_on_press_count = 0;
+////        drawScreen();
+//    }
+//
+//
+//    function drawScreen() {
+//        console.log("DRAWSCREEN CALLED");
+//
+//
+//        theScene = scene;
+//        var screenGroup = theScene.getObjectByName('olcd');
+//        if (screenGroup) {
+//            screenObject = screenGroup.children[0];
+//            screenMesh = screenObject.children[0];
+//            console.log(screenMesh);
+//            screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
+//            renderer = InnokinDisrupterViewer.getRenderer();
+//            screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+//            screenMaterial = new THREE.MeshPhongMaterial({map: screenDynamicTexture.texture});
+////            screenMaterial.map = null;
+//            screenMesh.material = screenMaterial;
+//            console.log(screenMaterial);
+//
+//            screenDynamicTexture.drawText('\uE001', 25, 130, '#FFFFFF', (0.6 * 190) + "px DisrupterLCDFont");
+//            screenDynamicTexture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+//            screenDynamicTexture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+//
+//
 //        }
 //
-//        texture.needsUpdate = true;
-    }
-
-
-//    setupPositions();
-    this.texture = function () {
-        return texture;
-    };
-    this.update = function (action) {
-//        console.log(action);
-        switch (action) {
-            case 'on':
-                clearTimeout(onswitchtimer);
-                onswitchtimer = null;
-                if (!current_settings.on) {
-                    switch_on_press_count += 1;
-                    onswitchtimer = setTimeout(function () {
-                        _handleSwitchOnOffTimer();
-                    }, three_x_press_delay);
-                    if (switch_on_press_count == 1) {
-                        //if device is not on and first push display the off_message
-                        current_settings.screen = 'off_message';
-                        boottimer = setTimeout(function () {
-                            current_settings.screen = '';
-                            drawScreen();
-                        }, 1000);
-                    } else {
-                        if (switch_on_press_count >= 3 && !current_settings.booting) {
-                            clearTimeout(boottimer);
-                            current_settings.booting = true;
-                            current_settings.on = true;
-                            current_settings.screen = 'boot';
-                            setTimeout(
-                                    function () {
-                                        current_settings.booting = false;
-                                        current_settings.screen = 'watt_setup';
-                                        drawScreen();
-                                        switch_on_press_count = 0;
-                                        if (InnokinDisrupterViewer.current_wattage == null) {
-                                            InnokinDisrupterViewer.current_wattage = current_settings.watts;
-                                        }
-                                    }, 600);
-                        }
-                    }
-                } else {
-                    //start switch off process
-                    //NO SWITCH OFF YET
-                }
-                break;
-            case 'upBtn':
-                //Only Act if the device has the ON status
-                if (current_settings.on) {
-                    if (InnokinDisrupterViewer.current_wattage < watts[1]) {
-                        InnokinDisrupterViewer.current_wattage += watt_increment;
-                    } else {
-                        InnokinDisrupterViewer.current_wattage = watts[0];
-                    }
-
-                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
-                    setTimeout(function () {
-                        InnokinDisrupterViewer.refresh_smoke();
-                    }, 200);
-                }
-                break;
-            case 'downBtn':
-                if (current_settings.on) {
-                    if (InnokinDisrupterViewer.current_wattage > watts[0]) {
-                        InnokinDisrupterViewer.current_wattage -= watt_increment;
-                    } else {
-                        InnokinDisrupterViewer.current_wattage = watts[1];
-                    }
-                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
-                    setTimeout(function () {
-                        InnokinDisrupterViewer.refresh_smoke();
-                    }, 200);
-                }
-                break;
-            default:
-        }
-        drawScreen();
-    }
-}
+//
+//////        screenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
+////        console.log(screenMesh);
+////        console.log(this);
+////        tctx.clearRect(0, 0, canvas.width, canvas.height);
+////        tctx.fillStyle = colors.lcd;
+////        tctx.fillRect(0, 0, canvas.width, canvas.height);
+////        tctx.fillStyle = colors.text;
+////        canvas.drawText('\uE001', 25, 130, '#FDFDFD', (0.6 * 190) + "px DisrupterLCDFont");
+////        texture.drawText('innokin', 170, 90, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+////        texture.drawText('technology', 145, 130, '#FDFDFD', (0.2 * 190) + "px DisrupterLCDFont");
+//
+//
+//
+//
+////        if (current_settings.screen && screens[current_settings.screen]) {
+//////            console.log(current_settings);
+////
+////            for (var text in positions[current_settings.screen]) {
+////                console.log(text);
+//////console.log(positions)
+////                var _text = text.replace(/0\.00w/, current_settings.watts.toFixed(2) + 'w');
+////                _text = _text.replace(/0\.00\u03A9/g, current_settings.ohm.toFixed(2) + '\u03A9');
+//////                _text = _text.replace(/0\.00v/g, current_settings.volts.toFixed(2) + 'v');
+//////                _text = _text.replace(/00\.0v/g, current_settings.volts.toFixed(1) + 'v');
+//////                _text = _text.replace(/00\.0w/g, current_settings.watts.toFixed(1) + 'w');
+////                var txt_info = positions[current_settings.screen][text];
+////                tctx.font = txt_info.fs + 'px DisrupterLCDFont';
+////                tctx.fillText(_text, txt_info.x, txt_info.y);
+////            }
+////        }
+////
+////        texture.needsUpdate = true;
+//    }
+//
+//
+////    setupPositions();
+//    this.texture = function () {
+//        return texture;
+//    };
+//    this.update = function (action) {
+////        console.log(action);
+//        switch (action) {
+//            case 'on':
+//                clearTimeout(onswitchtimer);
+//                onswitchtimer = null;
+//                if (!current_settings.on) {
+//                    switch_on_press_count += 1;
+//                    onswitchtimer = setTimeout(function () {
+//                        _handleSwitchOnOffTimer();
+//                    }, three_x_press_delay);
+//                    if (switch_on_press_count == 1) {
+//                        //if device is not on and first push display the off_message
+//                        current_settings.screen = 'off_message';
+//                        boottimer = setTimeout(function () {
+//                            current_settings.screen = '';
+//                            drawScreen();
+//                        }, 1000);
+//                    } else {
+//                        if (switch_on_press_count >= 3 && !current_settings.booting) {
+//                            clearTimeout(boottimer);
+//                            current_settings.booting = true;
+//                            current_settings.on = true;
+//                            current_settings.screen = 'boot';
+//                            setTimeout(
+//                                    function () {
+//                                        current_settings.booting = false;
+//                                        current_settings.screen = 'watt_setup';
+//                                        drawScreen();
+//                                        switch_on_press_count = 0;
+//                                        if (InnokinDisrupterViewer.current_wattage == null) {
+//                                            InnokinDisrupterViewer.current_wattage = current_settings.watts;
+//                                        }
+//                                    }, 600);
+//                        }
+//                    }
+//                } else {
+//                    //start switch off process
+//                    //NO SWITCH OFF YET
+//                }
+//                break;
+//            case 'upBtn':
+//                //Only Act if the device has the ON status
+//                if (current_settings.on) {
+//                    if (InnokinDisrupterViewer.current_wattage < watts[1]) {
+//                        InnokinDisrupterViewer.current_wattage += watt_increment;
+//                    } else {
+//                        InnokinDisrupterViewer.current_wattage = watts[0];
+//                    }
+//
+//                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
+//                    setTimeout(function () {
+//                        InnokinDisrupterViewer.refresh_smoke();
+//                    }, 200);
+//                }
+//                break;
+//            case 'downBtn':
+//                if (current_settings.on) {
+//                    if (InnokinDisrupterViewer.current_wattage > watts[0]) {
+//                        InnokinDisrupterViewer.current_wattage -= watt_increment;
+//                    } else {
+//                        InnokinDisrupterViewer.current_wattage = watts[1];
+//                    }
+//                    current_settings.watts = InnokinDisrupterViewer.current_wattage;
+//                    setTimeout(function () {
+//                        InnokinDisrupterViewer.refresh_smoke();
+//                    }, 200);
+//                }
+//                break;
+//            default:
+//        }
+//        drawScreen();
+//    }
+//}
