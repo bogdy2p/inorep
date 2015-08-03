@@ -1612,28 +1612,23 @@ var _InnokinDisrupterViewer = function () {
             colorize: true,
         });
         emitter = new SPE.Emitter({
-            position: new THREE.Vector3(-11.5, 47, -2),
+            position: new THREE.Vector3(-22, 152, -3),
             positionSpread: new THREE.Vector3(0, 0, 0),
-            acceleration: new THREE.Vector3(0, 30, 00),
-            accelerationSpread: new THREE.Vector3(0, 5, 0),
+            acceleration: new THREE.Vector3(0, 20, 00),
+            accelerationSpread: new THREE.Vector3(0, 0, 0),
             velocity: new THREE.Vector3(0, 0, 0),
-            velocitySpread: new THREE.Vector3(10, 10, 10),
+//            velocitySpread: new THREE.Vector3(10, 0, 10),
+            velocitySpread: new THREE.Vector3(0, 0, 0),
             colorStart: new THREE.Color(0xFFFFFF),
-            colorEnd: new THREE.Color(0x000000),
-            sizeStart: 200,
-            sizeEnd: 1500,
-            particleCount: 200,
+            colorEnd: new THREE.Color(0xFFFFFF),
+            sizeStart: 5,
+            sizeEnd: 200,
+            particleCount: 20,
 //            particleCount: device_variables.watt / 10 * 3,
         });
 
         particleGroup.addEmitter(emitter);
         scene.add(particleGroup.mesh);
-//        smoking = true;
-//        console.log(scene);
-//        console.log(emitter);
-//        console.log(particleGroup);
-//        console.log("Particlegroup and emmitter added");
-//        
     }
 
 
