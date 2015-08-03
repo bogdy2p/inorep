@@ -1482,6 +1482,7 @@ var _InnokinDisrupterViewer = function () {
         orbitcntrl.minPolarAngle = Math.PI / 3;
         orbitcntrl.panUp(60);
         orbitcntrl.update();
+        preloadFontForScreen();
         //add the lights
         var lightIntensity = 0.15;
         var coord_mul = 2;
@@ -1913,6 +1914,33 @@ var _InnokinDisrupterViewer = function () {
             start_smoke();
         }
     }
+    
+    function preloadFontForScreen() {
+    //Temporarely create a screen with texture to load the font the first time. Auto-Remove after 2 seconds
+    tempDynamicTexture = new THREEx.DynamicTexture(10, 10);
+    tempGeometry = new THREE.PlaneBufferGeometry(45, 20, 30, 30);
+    tempMaterial = new THREE.MeshBasicMaterial({map: tempDynamicTexture.texture});
+    tempPlane = new THREE.Mesh(tempGeometry, tempMaterial);
+    tempPlane.name = 'tempScreenFarAway';
+    tempPlane.position.z = 5000;
+    tempPlane.position.x = 5000;
+    tempPlane.position.y = 5000;
+    scene.add(tempPlane);
+    tempDynamicTexture.drawTextCooked(
+            {
+                text: 'SomeRandoMText',
+                align: 'center',
+                lineHeight: 0.3,
+                fillStyle: '#FDFDFD',
+                font: "" + (0.2 * 190) + "px DisrupterLCDFont",
+                family: "DisrupterLCDFont"
+            }
+    );
+    setTimeout(function () {
+        scene.remove(tempPlane);
+    }, 2000);
+}
+    
 
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
