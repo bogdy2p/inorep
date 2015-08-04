@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = false;
+    var debug_mode = true;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -229,73 +229,62 @@ var _InnokinDisrupterViewer = function () {
             cellout.chain(cellin);
             cellout.start();
         },
-        zoom_to_oled: function () {
+//        zoom_to_oled: function () {
+//            var groupTween = new TWEEN.Tween(disrupter.rotation).to({
+//                z: -Math.PI / 2,
+//                x: Math.PI / 2,
+//                //y : Math.PI 
+//            }, 800).start();
+//            new TWEEN.Tween(disrupter.position).to({
+//                x: -60,
+//                z: -10,
+//                y: 30
+//
+//            }, 800).start();
+//            //animate camera
+//
+//            new TWEEN.Tween(camera.position).to({
+//                x: 12.75759306407929,
+//                y: 70.2878973429858,
+//                z: 113.82941043722535
+//            }, 900).start();
+//            new TWEEN.Tween(camera.rotation).to({
+//                x: -0.14576356565046156,
+//                y: -0.00023981239294456708,
+//                z: -0.00003520560129255281
+//            }, 900).start();
+//            var ctw = new TWEEN.Tween(orbitcntrl.center).to({
+//                x: 12.792604357404935,
+//                y: 49.08249611245189,
+//                z: -30.61686786871972
+//            }, 900);
+//            ctw.onComplete(function () {
+//                orbitcntrl.update();
+//            });
+//            ctw.start();
+//        },
+        zoom_to_oled_new: function () {
+
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
                 z: -Math.PI / 2,
                 x: Math.PI / 2,
-                //y : Math.PI 
             }, 800).start();
             new TWEEN.Tween(disrupter.position).to({
                 x: -60,
                 z: -10,
                 y: 30
-
             }, 800).start();
-            //animate camera
-            new TWEEN.Tween(camera.position).to({
-                x: 12.75759306407929,
-                y: 70.2878973429858,
-                z: 113.82941043722535
-            }, 900).start();
-            new TWEEN.Tween(camera.rotation).to({
-                x: -0.14576356565046156,
-                y: -0.00023981239294456708,
-                z: -0.00003520560129255281
-            }, 900).start();
-            var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                x: 12.792604357404935,
-                y: 49.08249611245189,
-                z: -30.61686786871972
-            }, 900);
-            ctw.onComplete(function () {
-                orbitcntrl.update();
-            });
-            ctw.start();
-        },
-        zoom_to_oled2: function () {
-            var groupTween = new TWEEN.Tween(disrupter.rotation).to({
-                z: -Math.PI / 2,
-                x: Math.PI / 2,
-                //y : Math.PI 
-            }, 800).start();
-            new TWEEN.Tween(disrupter.position).to({
-                x: -60,
-                z: -10,
-                y: 30
-
-            }, 800).start();
-            //animate camera
-            new TWEEN.Tween(camera.position).to({
-                x: 12.75759306407929,
-                y: 70.2878973429858,
-                z: 113.82941043722535
-            }, 900).start();
-            new TWEEN.Tween(camera.rotation).to({
-                x: -0.14576356565046156,
-                y: -0.00023981239294456708,
-                z: -0.00003520560129255281
-            }, 900).start();
-            var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                x: 12.792604357404935,
-                y: 49.08249611245189,
-                z: -30.61686786871972
-            }, 900);
+            new TWEEN.Tween(camera.position).to({x: -13.676161925598056, y: 63.9452391807378, z: 87.23723124674612}, 900).start();
+            new TWEEN.Tween(camera.rotation).to({x: -0.22118710812447032, y: -0.015007889761138695, z: -0.003374627986400691}, 900).start();
+            var ctw = new TWEEN.Tween(orbitcntrl.center).to({x: -11.891589041561836, y: 37.85999917667022, z: -28.76614107973018}, 900);
             ctw.onComplete(function () {
                 orbitcntrl.update();
             });
             ctw.start();
         },
         zoom_to_fullview: function () {
+            var zoomAmountModifier = 1.3;
+
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
                 z: 0,
                 x: 0,
@@ -309,9 +298,9 @@ var _InnokinDisrupterViewer = function () {
             }, 800).start();
             //animate camera
             new TWEEN.Tween(camera.position).to({
-                x: -144.20119763765334,
-                y: 111.2972966087502,
-                z: 121.55749190834881
+                x: -144.20119763765334 * zoomAmountModifier,
+                y: 111.2972966087502 * zoomAmountModifier,
+                z: 121.55749190834881 * zoomAmountModifier
             }, 900).start();
             new TWEEN.Tween(camera.rotation).to({
                 x: -0.2854704053759189,
@@ -319,9 +308,9 @@ var _InnokinDisrupterViewer = function () {
                 z: -0.2156764559473396
             }, 900).start();
             var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                x: 11.859650548162842,
-                y: 72.12312221743433,
-                z: -11.921155841890096
+                x: 11.859650548162842 * zoomAmountModifier,
+                y: 72.12312221743433 * zoomAmountModifier,
+                z: -11.921155841890096 * zoomAmountModifier
             }, 900);
             ctw.onComplete(function () {
                 orbitcntrl.update();
@@ -540,41 +529,7 @@ var _InnokinDisrupterViewer = function () {
                     }, 100);
                     tw.onComplete(
                             function () {
-                                var groupTween = new TWEEN.Tween(disrupter.rotation).to({
-                                    z: -Math.PI / 2,
-                                    x: Math.PI / 2,
-                                    //y : Math.PI 
-                                }, 800);
-                                new TWEEN.Tween(disrupter.position).to({
-                                    x: -60,
-                                    z: -10,
-                                    y: 30
-
-                                }, 800).start();
-                                if (typeof (cb) == 'function') {
-                                    groupTween.onComplete(cb);
-                                }
-                                groupTween.start()
-                                //animate camera stage 2
-                                new TWEEN.Tween(camera.position).to({
-                                    x: 12.75759306407929,
-                                    y: 70.2878973429858,
-                                    z: 113.82941043722535
-                                }, 900).start();
-                                new TWEEN.Tween(camera.rotation).to({
-                                    x: -0.14576356565046156,
-                                    y: -0.00023981239294456708,
-                                    z: -0.00003520560129255281
-                                }, 900).start();
-                                var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                                    x: 12.792604357404935,
-                                    y: 49.08249611245189,
-                                    z: -30.61686786871972
-                                }, 900);
-                                ctw.onComplete(function () {
-                                    orbitcntrl.update();
-                                });
-                                ctw.start();
+                                animations.zoom_to_oled_new();
                             }
                     );
                     modTween.chain(subtween);
@@ -1425,7 +1380,7 @@ var _InnokinDisrupterViewer = function () {
             camera.rotation.set(-0.1473, 0.04493, 0.00666);
             orbitcntrl.center.set(0, 60, 0);
             resetDisrupterTransforms();
-            animations.zoom_to_oled();
+            animations.zoom_to_oled_new();
             orbitcntrl.enabled = debug_mode ? true : false;
         }
 
@@ -1570,7 +1525,7 @@ var _InnokinDisrupterViewer = function () {
 
     function startSmoking(wattage) {
 
-
+        zoomFullView();
         filter = scene.getObjectByName('isub_coil02ohm');
         complete_device_group = filter.parent;
 
