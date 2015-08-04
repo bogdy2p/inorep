@@ -169,7 +169,8 @@
 	top: 100px;
 }
 .disrupter-view-wrapper .step4-tool-button.zoom-full{
-	background-image: url('img/free-rotate-icon.png');
+	/*background-image: url('img/free-rotate-icon.png');*/
+        background-image: url('img/disrupter-outline.png');
 }
 .disrupter-view-wrapper .viewer-color-swatches{
 	position: absolute;

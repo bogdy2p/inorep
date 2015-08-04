@@ -25,6 +25,7 @@ var _InnokinDisrupterViewer = function () {
     textureCubeCrome.minFilter = THREE.LinearFilter;
     var current_step = 1;
     var from_step = 1;
+    
     var config = {
         width: 830,
         height: 500,
