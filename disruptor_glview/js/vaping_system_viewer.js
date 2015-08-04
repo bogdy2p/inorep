@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = false;
+    var debug_mode = true;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -58,6 +58,7 @@ var _InnokinDisrupterViewer = function () {
         plastic_transparent: {color: 0xffffff, specular: 0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.40, reflectivity: 30, shininess: 80},
         plastic_powled: {color: 0xffffff, specular: 0xffffff, envMap: textureCube, combine: THREE.MultiplyOperation, transparent: true, opacity: 0.90, reflectivity: 5, shininess: 40},
         plastic_black: {color: 0x111111, shininess: 50, specular: 0xffffff, side: THREE.DoubleSide},
+        battery_bottom_text: {color: 0x222222, shininess: 1, specular: 0x333333, metal: true, side: THREE.DoubleSide},
     };
     var disrupter_matreials = [materials.silver_material, materials.golden_material, materials.black_material];
     var innocell_matreials = [materials.black_battery, materials.blue_battery, materials.pink_battery, materials.red_battery, materials.green_battery, materials.purple_battery, materials.whiteblue_battery];
@@ -80,7 +81,6 @@ var _InnokinDisrupterViewer = function () {
                     {model: 'obj/power_button.obj', type: 'obj', name: 'startbutton', material: materials.silver_material},
                     {model: 'obj/up_button.obj', type: 'obj', name: 'up_button', material: materials.silver_material},
                     {model: 'obj/down_button.obj', type: 'obj', name: 'down_button', material: materials.silver_material},
-//                    {model: 'obj/olcd.dae', type: 'collada', name: 'olcd', material: {color: 0xffffff}},
                     {model: 'obj/olcd.dae', type: 'collada', name: 'olcd', material: materials.defaultScreenBackground},
                     {model: 'obj/screen_frame.obj', type: 'obj', name: 'olcd_frame', material: materials.silver_material}
                 ],
@@ -95,7 +95,7 @@ var _InnokinDisrupterViewer = function () {
                     {model: 'obj/battery_srews.obj', type: 'obj', name: '', material: materials.screws},
                     {model: 'obj/battery_lid_screws.obj', type: 'obj', name: '', material: materials.screws},
                     {model: 'obj/battery_bottom_screws.obj', type: 'obj', name: '', material: materials.screws},
-                    {model: 'obj/battery_bottom_text.obj', type: 'obj', name: '', material: materials.texts},
+                    {model: 'obj/battery_bottom_text.obj', type: 'obj', name: '', material: materials.battery_bottom_text},
                     {model: 'obj/battery_shell.obj', type: 'obj', name: 'battery_shell', material: innocell_matreials[0]}
                 ],
         isub_coil02ohm:
