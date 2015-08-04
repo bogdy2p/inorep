@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -641,6 +641,7 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function _handleStepChange(evt) {
+        console.log(evt);
         if (reached_step4) {
             var data = parseInt(evt.target.getAttribute("data-step"));
             if (!isNaN(data)) {
@@ -722,7 +723,8 @@ var _InnokinDisrupterViewer = function () {
                         picked = picked.parent;
                     }
 
-                    var next_step = reached_step4 ? 4 : (current_step + 1);
+//                    var next_step = reached_step4 ? 4 : (current_step + 1);
+                    var next_step = current_step + 1;
                     switch (current_step) {
                         case 1:
                             if (picked.name == 'disrupter') {
@@ -1660,13 +1662,13 @@ var _InnokinDisrupterViewer = function () {
         fineTuneVariablesDisplay(mode);
         switch (mode) {
             case "watt":
-                screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 10, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 11, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
                 //Draw Volts
-                screenDynamicTexture.drawText(volt_ammount_display + 'v', 10, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                screenDynamicTexture.drawText(volt_ammount_display + 'v', 11, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
                 // Draw WATTAGE AMMOUNT INFORMATION
                 screenDynamicTexture.drawText(watt_ammount_display, 155, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
                 // Draw WATTAGE LOGO Information
-                screenDynamicTexture.drawText('w', 289, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
+                screenDynamicTexture.drawText('w', 285, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
                 //Draw Battery
                 screenDynamicTexture.drawText('\uE000', 345, 120, '#FFFFFF', (0.3 * 256) + "px DisrupterLCDFont");
                 break;
@@ -1766,6 +1768,10 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function startButtonClickedDeviceStarted() {
+        
+        var startButton = scene.getObjectByName('startbutton');
+        startButton.position.x += 0.5;
+        
         if (!smoking) {
             playSmoke = setTimeout(function () {
                 startSmoking(device_variables.watt);
