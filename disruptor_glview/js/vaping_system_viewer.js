@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -1088,7 +1088,6 @@ var _InnokinDisrupterViewer = function () {
 
     function resetDisrupterTransforms() {
         disrupter_groups['isub_coil02ohm'].rotation.set(0, 0, 0);
-        //disrupter_groups['isub_coil02ohm'].position.set(0,0,0);
         disrupter_groups['isub_coil02ohm'].position.set(-22.5, 0, -3.5);
         disrupter_groups['disrupter'].rotation.set(0, 0, 0);
         disrupter_groups['disrupter'].position.set(0, 0, 0);
@@ -1241,8 +1240,10 @@ var _InnokinDisrupterViewer = function () {
                     orbitcntrl.maxAzimuthAngle = Math.PI / 10;
                     break;
                 case 2:
-                    orbitcntrl.minPolarAngle = Math.PI / 3;
-                    orbitcntrl.maxPolarAngle = Math.PI / 3;
+                    orbitcntrl.minPolarAngle = 0.9;
+                    orbitcntrl.maxPolarAngle = 0.9;
+//                    orbitcntrl.minPolarAngle = 1.3;
+//                    orbitcntrl.maxPolarAngle = 1.3;
                     break
                 case 3:
                     orbitcntrl.minAzimuthAngle = -Math.PI / 20;
@@ -1553,7 +1554,6 @@ var _InnokinDisrupterViewer = function () {
             });
             particleGroup.addEmitter(emitter);
             //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
-            ///
 
             complete_device_group.add(particleGroup.mesh);
             smoking = true;
@@ -1716,7 +1716,7 @@ var _InnokinDisrupterViewer = function () {
         var startButton = scene.getObjectByName('startbutton');
         var twoClicksDifference = 0;
         var threeClicksDifference = 0;
-        startButton.position.x += 0.3;
+        startButton.position.x += 0.5;
         startButtonCounter += 1;
         startButtonCounter2 += 1;
         if (device_status === "OFF") {
@@ -1852,7 +1852,6 @@ var _InnokinDisrupterViewer = function () {
         var existingSmallScreen = scene.getObjectByName('smallScreen');
         var newScreenDynamicTexture = new THREEx.DynamicTexture(400, 200);
         newScreenDynamicTexture.name = 'screenDynamicTexture';
-//        newScreenDynamicTexture.texture.anisotropy = renderer.getMaxAnisotropy();
         newScreenDynamicTexture.texture.needsUpdate = true;
         newScreenDynamicTexture.clear('#667788');
         drawAllFourOnTexture(newScreenDynamicTexture, device_state);
