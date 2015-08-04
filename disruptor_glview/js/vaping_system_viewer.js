@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -1858,9 +1858,26 @@ var _InnokinDisrupterViewer = function () {
     function calculateVoltageInformation() {
 
         var voltage = 0;
-        voltage = device_variables.watt / device_variables.ohmz;
-        console.log(voltage);
-        device_variables.volt = voltage * 2.5;
+
+
+        console.log(device_variables.ohmz);
+        switch (device_variables.ohmz) {
+            case 20:
+//                alert('YOU 2.0 OHM');
+                voltage = device_variables.watt / device_variables.ohmz;
+                device_variables.volt = voltage * 2.5;
+                break;
+
+            case 5:
+//                alert('YOU 0.5 OHM');
+                voltage = device_variables.watt / device_variables.ohmz;
+//                console.log(voltage);
+                device_variables.volt = voltage * 0.5;
+                break;
+        }
+
+
+
     }
 
     function resetVoltageInformation() {
