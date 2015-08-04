@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = false;
+    var debug_mode = true;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -25,7 +25,7 @@ var _InnokinDisrupterViewer = function () {
     textureCubeCrome.minFilter = THREE.LinearFilter;
     var current_step = 1;
     var from_step = 1;
-    
+
     var config = {
         width: 830,
         height: 500,
@@ -143,10 +143,13 @@ var _InnokinDisrupterViewer = function () {
     var startButtonCounter2 = 0;
 
     //SMOKE PART
+
+    var is_zoomed_to_oled = false;
+
     var playSmoke = null;
     var removeSmoke = null;
     var smoking = false;
-    var ammount_of_ms_to_press = 1500;
+    var ammount_of_ms_to_press = 100;
     var resetTimeout = null;
     var fifteen_sec_timer = null;
 //END SMOKE PART
@@ -284,6 +287,7 @@ var _InnokinDisrupterViewer = function () {
                 orbitcntrl.update();
             });
             ctw.start();
+            is_zoomed_to_oled = true;
         },
         zoom_to_fullview: function () {
             var zoomAmountModifier = 1.3;
@@ -319,6 +323,7 @@ var _InnokinDisrupterViewer = function () {
                 orbitcntrl.update();
             });
             ctw.start();
+            is_zoomed_to_oled = false;
         },
         step: {
             1: {
@@ -1538,41 +1543,39 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function startSmoking(wattage) {
-
-        zoomFullView();
-        filter = scene.getObjectByName('isub_coil02ohm');
-        complete_device_group = filter.parent;
-
-        if (!smoking) {
-            particleGroup = new SPE.Group({
-                texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
-                maxAge: 5,
-                hasPerspective: true,
-                colorize: true,
-            });
-            emitter = new SPE.Emitter({
+        if (!is_zoomed_to_oled) {
+//        zoomFullView();
+            filter = scene.getObjectByName('isub_coil02ohm');
+            complete_device_group = filter.parent;
+            if (!smoking) {
+                particleGroup = new SPE.Group({
+                    texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
+                    maxAge: 5,
+                    hasPerspective: true,
+                    colorize: true,
+                });
+                emitter = new SPE.Emitter({
 //                position: new THREE.Vector3(-22, 152, -3),
-                position: new THREE.Vector3(-22, 152, -4),
-                positionSpread: new THREE.Vector3(0, 0, 0),
-                acceleration: new THREE.Vector3(0, 10, 00),
-                accelerationSpread: new THREE.Vector3(0, 0, 0),
-                velocity: new THREE.Vector3(0, 0, 0),
-                velocitySpread: new THREE.Vector3(10, 0, 10),
+                    position: new THREE.Vector3(-22, 152, -4),
+                    positionSpread: new THREE.Vector3(0, 0, 0),
+                    acceleration: new THREE.Vector3(0, 10, 00),
+                    accelerationSpread: new THREE.Vector3(0, 0, 0),
+                    velocity: new THREE.Vector3(0, 0, 0),
+                    velocitySpread: new THREE.Vector3(10, 0, 10),
 //                velocitySpread: new THREE.Vector3(0, 0, 0),
-                colorStart: new THREE.Color(0xFFFFFF),
-                colorEnd: new THREE.Color(0xFFFFFF),
-                sizeStart: 5,
-                sizeEnd: 150,
-                particleCount: wattage * 3 / 10,
-            });
-            particleGroup.addEmitter(emitter);
-            //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
+                    colorStart: new THREE.Color(0xFFFFFF),
+                    colorEnd: new THREE.Color(0xFFFFFF),
+                    sizeStart: 5,
+                    sizeEnd: 150,
+                    particleCount: wattage * 3 / 10,
+                });
+                particleGroup.addEmitter(emitter);
+                //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
+                complete_device_group.add(particleGroup.mesh);
+                smoking = true;
+                reset15secTimeout();
 
-            complete_device_group.add(particleGroup.mesh);
-            smoking = true;
-
-            reset15secTimeout();
-
+            }
         }
     }
     function stopSmoking() {
@@ -1765,14 +1768,15 @@ var _InnokinDisrupterViewer = function () {
             startButtonCounter = 0;
         }, 600);
         if (device_status === "ON") {
+            startSmoking(device_variables.watt);
         }
     }
 
     function startButtonClickedDeviceStarted() {
-        
+
         var startButton = scene.getObjectByName('startbutton');
         startButton.position.x += 0.5;
-        
+
         if (!smoking) {
             playSmoke = setTimeout(function () {
                 startSmoking(device_variables.watt);
@@ -1808,13 +1812,6 @@ var _InnokinDisrupterViewer = function () {
                         device_variables.watt = 60;
                     }
                     refreshDisruptorInformations();
-                    clearTimeout(resetTimeout);
-
-                    resetTimeout = setTimeout(function () {
-                        resetParticlesWithNewInfo();
-
-                    }, 500);
-                    reset15secTimeout();
                     break;
             }
         }
@@ -1843,11 +1840,6 @@ var _InnokinDisrupterViewer = function () {
                         device_variables.watt = 500;
                     }
                     refreshDisruptorInformations();
-                    clearTimeout(resetTimeout);
-                    resetTimeout = setTimeout(function () {
-                        resetParticlesWithNewInfo();
-                    }, 500);
-                    reset15secTimeout();
                     break;
             }
         }
@@ -1863,6 +1855,8 @@ var _InnokinDisrupterViewer = function () {
         startButtonPushed = false;
         clearTimeout(playSmoke);
         clearTimeout(removeSmoke);
+        stopSmoking();
+
     }
 
     function refreshDisruptorInformations() {
@@ -1878,14 +1872,14 @@ var _InnokinDisrupterViewer = function () {
         existingSmallScreen.material = newPlaneMaterial;
     }
 
-    function resetParticlesWithNewInfo() {
-        if (smoking) {
-            smoking = false;
-            complete_device_group = scene.getObjectByName('disrupter').parent;
-            complete_device_group.remove(particleGroup.mesh);
-            startSmoking(device_variables.watt);
-        }
-    }
+//    function resetParticlesWithNewInfo() {
+//        if (smoking) {
+//            smoking = false;
+//            complete_device_group = scene.getObjectByName('disrupter').parent;
+//            complete_device_group.remove(particleGroup.mesh);
+//            startSmoking(device_variables.watt);
+//        }
+//    }
 
     function preloadFontForScreen() {
         //Temporarely create a screen with texture to load the font the first time. Auto-Remove after 2 seconds
