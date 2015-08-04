@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = false;
+    var debug_mode = true;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -1527,21 +1527,6 @@ var _InnokinDisrupterViewer = function () {
     this.step = function (newstep) {
         setStep(newstep)
     };
-    this.start_smoke = function () {
-        if (device_status = "ON") {
-            startSmoking(device_variables.watt);
-        }
-    };
-    this.stop_smoke = function () {
-        stopSmoking();
-    }
-
-    this.refresh_smoke = function () {
-        if (smoking) {
-            stopSmoking();
-            startSmoking(device_variables.watt);
-        }
-    }
 
     function startSmoking(wattage) {
         if (!is_zoomed_to_oled) {
@@ -1574,6 +1559,10 @@ var _InnokinDisrupterViewer = function () {
                 //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
                 complete_device_group.add(particleGroup.mesh);
                 smoking = true;
+
+                calculateVoltageInformation();
+
+                refreshDisruptorInformations();
                 reset15secTimeout();
 
             }
@@ -1585,6 +1574,8 @@ var _InnokinDisrupterViewer = function () {
             complete_device_group = filter.parent;
             complete_device_group.remove(particleGroup.mesh);
             smoking = false;
+            resetVoltageInformation();
+            refreshDisruptorInformations();
         }
     }
 
@@ -1696,16 +1687,21 @@ var _InnokinDisrupterViewer = function () {
         var voltz = (device_variables.volt / 10).toString();
         var wattz = (device_variables.watt / 10).toString();
         var ohmz = (device_variables.ohmz / 10).toString();
-        volt_ammount_display = voltz;
+        console.log("VOLTZ " + device_variables.volt);
+        console.log("DisplayV : " + voltz);
+        substringOfVolt = voltz.substring(0, 4);
+        volt_ammount_display = substringOfVolt;
         watt_ammount_display = wattz;
         ohmz_ammount_display = ohmz;
         ///////////////////////////////////////////////////////
         //For The VOLT PART
         ///////////////////////////////////////////////////////
         if (device_variables.volt % 10 == 0) {
-            volt_ammount_display += '.0';
+            volt_ammount_display += '.00';
+        } else if (device_variables.volt % 10 == 5) {
+            volt_ammount_display += '0';
         }
-        volt_ammount_display = volt_ammount_display + '0';
+//        volt_ammount_display = volt_ammount_display + '0';
         ///////////////////////////////////////////////////////
         // For the WATT PART
         ///////////////////////////////////////////////////////
@@ -1720,7 +1716,6 @@ var _InnokinDisrupterViewer = function () {
         ///////////////////////////////////////////////////////
         // For the OHMZ PART
         ///////////////////////////////////////////////////////
-
         if (device_variables.ohmz % 10 == 0) {
             ohmz_ammount_display += '.00';
         } else {
@@ -1860,6 +1855,18 @@ var _InnokinDisrupterViewer = function () {
 
     }
 
+    function calculateVoltageInformation() {
+
+        var voltage = 0;
+        voltage = device_variables.watt / device_variables.ohmz;
+        console.log(voltage);
+        device_variables.volt = voltage * 2.5;
+    }
+
+    function resetVoltageInformation() {
+        device_variables.volt = 0;
+    }
+
     function refreshDisruptorInformations() {
         var existingSmallScreen = scene.getObjectByName('smallScreen');
         var newScreenDynamicTexture = new THREEx.DynamicTexture(400, 200);
@@ -1909,11 +1916,11 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function reset15secTimeout() {
-        console.log("reset15sectimeout called");
+//        console.log("reset15sectimeout called");
         clearTimeout(fifteen_sec_timer);
         fifteen_sec_timer = setTimeout(function () {
             stopSmoking();
-            console.log("reset15secTimeout STOPSMOKING");
+//            console.log("reset15secTimeout STOPSMOKING");
         }, 15000);
     }
 
