@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -1279,6 +1279,7 @@ var _InnokinDisrupterViewer = function () {
                     orbitcntrl.minPolarAngle = 0;
                     orbitcntrl.update();
                     orbitcntrl.enabled = false;
+//                    orbitcntrl.noPan = false;
             }
         } else {
             orbitcntrl.minPolarAngle = 0;
