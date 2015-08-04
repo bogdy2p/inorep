@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -824,6 +824,10 @@ var _InnokinDisrupterViewer = function () {
                                     current_choice['coil'] = picked;
                                     //Set Device Variables to Specified Ohmage Chosen
                                     device_variables.ohmz = picked.userData.ohms * 10;
+                                    //If device is on ,refresh the screen @ this moment
+                                    if (device_status === "ON") {
+                                        refreshDisruptorInformations();
+                                    }
                                     reached_step4 = true;
                                     setStep(next_step);
                                 } else {
