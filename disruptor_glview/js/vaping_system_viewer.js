@@ -103,7 +103,9 @@ var _InnokinDisrupterViewer = function () {
                     //{model:'obj/coil.obj',type:'obj', name : '', material :  materials.grey_metal}, //original coil
                     //{model:'obj/coil_glass.obj',type:'obj', name : 'coil_glass', material : materials.coil_glass} //original coil glass
                     {model: 'obj/coil2.obj', type: 'obj', name: '', material: materials.crome_metal}, //centered coil
-                    {model: 'obj/coil2_glass.obj', type: 'obj', name: 'coil_glass', material: materials.coil_glass} //centered coil glass
+                    {model: 'obj/coil2_glass.obj', type: 'obj', name: 'coil_glass', material: materials.coil_glass}, //centered coil glass
+                    {model: 'obj/logo_sipca.obj', type: 'obj', name: 'coil_logo', material: materials.plastic_black} //centered coil glass
+                    
                 ],
         tabletop: [
             {model: 'obj/carousel_top.obj', type: 'obj', name: 'carousel', material: materials.plastic_transparent},
@@ -381,6 +383,7 @@ var _InnokinDisrupterViewer = function () {
             },
             2: {
                 'in': function (cb) {
+                    var cameraPositionZoom = 0.8;
                     var duration = 1500;
                     var tw = new TWEEN.Tween(disrupter_groups['tabletop'].rotation).to({
                         y: disrupter_groups['tabletop'].rotation.y - (2 * Math.PI)
@@ -398,9 +401,9 @@ var _InnokinDisrupterViewer = function () {
                     }
                     //animate camera
                     new TWEEN.Tween(camera.position).to({
-                        x: 2.13455,
-                        y: 178.7043,
-                        z: 281.966
+                        x: 2.13455 * cameraPositionZoom,
+                        y: 178.7043 * cameraPositionZoom,
+                        z: 281.966 * cameraPositionZoom
                     }, duration).start();
                     new TWEEN.Tween(camera.rotation).to({
                         x: -0.39847,
@@ -408,9 +411,9 @@ var _InnokinDisrupterViewer = function () {
                         z: 0.00293723
                     }, duration).start();
                     var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                        x: 0,
-                        y: 60,
-                        z: 0
+                        x: 0 * cameraPositionZoom,
+                        y: 60 * cameraPositionZoom,
+                        z: 0 * cameraPositionZoom
                     }, duration);
                     ctw.onComplete(function () {
                         orbitcntrl.update();
@@ -1240,10 +1243,16 @@ var _InnokinDisrupterViewer = function () {
                     orbitcntrl.maxAzimuthAngle = Math.PI / 10;
                     break;
                 case 2:
-                    orbitcntrl.minPolarAngle = 0.9;
-                    orbitcntrl.maxPolarAngle = 0.9;
-//                    orbitcntrl.minPolarAngle = 1.3;
-//                    orbitcntrl.maxPolarAngle = 1.3;
+//                    orbitcntrl.minPolarAngle = 0.9;
+//                    orbitcntrl.maxPolarAngle = 0.9;
+//                    orbitcntrl.minPolarAngle = 1.1;
+//                    orbitcntrl.maxPolarAngle = 1.1;
+//                    camera.position.x = camera.position.x * 1.5;
+//                    camera.position.y = camera.position.y * 1.5;
+//                    camera.position.z = camera.position.z * 1.5;
+                    orbitcntrl.minPolarAngle = 1.25;
+                    orbitcntrl.maxPolarAngle = 1.25;
+                    orbitcntrl.update();
                     break
                 case 3:
                     orbitcntrl.minAzimuthAngle = -Math.PI / 20;
