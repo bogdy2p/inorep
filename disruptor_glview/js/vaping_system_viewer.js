@@ -105,7 +105,7 @@ var _InnokinDisrupterViewer = function () {
                     {model: 'obj/coil2.obj', type: 'obj', name: '', material: materials.crome_metal}, //centered coil
                     {model: 'obj/coil2_glass.obj', type: 'obj', name: 'coil_glass', material: materials.coil_glass}, //centered coil glass
                     {model: 'obj/logo_sipca.obj', type: 'obj', name: 'coil_logo', material: materials.plastic_black} //centered coil glass
-                    
+
                 ],
         tabletop: [
             {model: 'obj/carousel_top.obj', type: 'obj', name: 'carousel', material: materials.plastic_transparent},
@@ -132,7 +132,7 @@ var _InnokinDisrupterViewer = function () {
     ///////////////////////////////////////////////////////////////////////////
     var device_variables = {
         ohmz: 5,
-        volt: 63,
+        volt: 0,
         watt: 120,
         battery: 1000,
     }
@@ -810,11 +810,12 @@ var _InnokinDisrupterViewer = function () {
                                     break;
                                 case 'up_button':
                                     console.log("UPBUTTON");
-                                    plusButtonClick();
+                                    minusButtonClick();
                                     break;
                                 case 'down_button':
                                     console.log("DOWNBUTTON");
-                                    minusButtonClick();
+                                    plusButtonClick();
+
                                     break;
                             }
                             break;
@@ -1661,7 +1662,7 @@ var _InnokinDisrupterViewer = function () {
             case "watt":
                 screenDynamicTexture.drawText(ohmz_ammount_display + '\u03A9', 10, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
                 //Draw Volts
-                screenDynamicTexture.drawText(volt_ammount_display + 'v', 14, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
+                screenDynamicTexture.drawText(volt_ammount_display + 'v', 10, 150, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
                 // Draw WATTAGE AMMOUNT INFORMATION
                 screenDynamicTexture.drawText(watt_ammount_display, 155, 130, '#FDFDFD', (0.3 * 256) + "px DisrupterLCDFont");
                 // Draw WATTAGE LOGO Information
@@ -1780,7 +1781,7 @@ var _InnokinDisrupterViewer = function () {
 
 
     function plusButtonClick() {
-        var buttonSmall1 = scene.getObjectByName('up_button');
+        var buttonSmall1 = scene.getObjectByName('down_button');
         buttonSmall1.position.x += 0.3;
         if (device_status === "ON") {
             switch (device_state) {
@@ -1813,7 +1814,7 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function minusButtonClick() {
-        var buttonSmall2 = scene.getObjectByName('down_button');
+        var buttonSmall2 = scene.getObjectByName('up_button');
         buttonSmall2.position.x += 0.3;
         if (device_status === "ON") {
             switch (device_state) {
