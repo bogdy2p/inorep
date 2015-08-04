@@ -131,7 +131,7 @@ var _InnokinDisrupterViewer = function () {
     var device_variables = {
         ohmz: 5,
         volt: 63,
-        watt: 450,
+        watt: 120,
         battery: 1000,
     }
     var device_status = "OFF";
@@ -145,6 +145,7 @@ var _InnokinDisrupterViewer = function () {
     var smoking = false;
     var ammount_of_ms_to_press = 1500;
     var resetTimeout = null;
+    var fifteen_sec_timer = null;
 //END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
@@ -1597,6 +1598,9 @@ var _InnokinDisrupterViewer = function () {
 
             complete_device_group.add(particleGroup.mesh);
             smoking = true;
+
+            reset15secTimeout();
+
         }
     }
     function stopSmoking() {
@@ -1656,7 +1660,6 @@ var _InnokinDisrupterViewer = function () {
             setTimeout(function () {
                 groupMecanism = scene.getObjectByName('disrupter');
                 groupMecanism.remove(ScreenPlane);
-//                screenDynamicTexture.clear('#667788');
             }, 0);
         }
     }
@@ -1681,7 +1684,7 @@ var _InnokinDisrupterViewer = function () {
         generalStartScreen();
         screenDynamicTexture.drawText('OFF', 150, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
         screenDynamicTexture.drawText('click 3x on', 45, 145, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
-        delayStopScreen(1500);
+        delayStopScreen(1000);
     }
 
     function drawAllFourOnTexture(screenDynamicTexture, mode) {
@@ -1772,7 +1775,6 @@ var _InnokinDisrupterViewer = function () {
             }
             if (startButtonCounter % 3 == 2) {
                 clearTimeout();
-//                instantStopScreen();
                 startClick2 = clock.elapsedTime;
                 twoClicksDifference = startClick2 - startClick1;
                 timer_running = false;
@@ -1791,7 +1793,6 @@ var _InnokinDisrupterViewer = function () {
             startButtonCounter = 0;
         }, 600);
         if (device_status === "ON") {
-//                        alert('THE DEVICE IS ONLINE');
         }
     }
 
@@ -1807,16 +1808,10 @@ var _InnokinDisrupterViewer = function () {
                 smoking = false;
             }, ammount_of_ms_to_press);
         }
-
-
-
-
-
     }
 
 
     function plusButtonClick() {
-
         var buttonSmall1 = scene.getObjectByName('up_button');
         buttonSmall1.position.x += 0.3;
         if (device_status === "ON") {
@@ -1838,13 +1833,15 @@ var _InnokinDisrupterViewer = function () {
                     }
                     refreshDisruptorInformations();
                     clearTimeout(resetTimeout);
+
                     resetTimeout = setTimeout(function () {
                         resetParticlesWithNewInfo();
+
                     }, 500);
+                    reset15secTimeout();
                     break;
             }
         }
-
     }
 
     function minusButtonClick() {
@@ -1874,6 +1871,7 @@ var _InnokinDisrupterViewer = function () {
                     resetTimeout = setTimeout(function () {
                         resetParticlesWithNewInfo();
                     }, 500);
+                    reset15secTimeout();
                     break;
             }
         }
@@ -1939,6 +1937,16 @@ var _InnokinDisrupterViewer = function () {
             scene.remove(tempPlane);
         }, 2000);
     }
+
+    function reset15secTimeout() {
+        console.log("reset15sectimeout called");
+        clearTimeout(fifteen_sec_timer);
+        fifteen_sec_timer = setTimeout(function () {
+            stopSmoking();
+            console.log("reset15secTimeout STOPSMOKING");
+        }, 15000);
+    }
+
 
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
