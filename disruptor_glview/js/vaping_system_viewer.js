@@ -1,7 +1,8 @@
 var _InnokinDisrupterViewer = function () {
 
     var debug_mode = true;
-    var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
+    var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay, warningBox;
+    var vapingSound = null;
     var prev_picked = null;
     var reached_step4 = debug_mode;
     var remainingToLoad = 0;
@@ -12,7 +13,6 @@ var _InnokinDisrupterViewer = function () {
     var sounds = {
         slide_in: {src: ['sounds/disrupter_lock.mp3', 'sounds/disrupter_lock.ogg'], obj: null},
         slide_out: {src: ['sounds/disrupter_unlock.mp3', 'sounds/disrupter_unlock.ogg'], obj: null},
-//        vaping: {src: ['sounds/vaping.mp3', 'sounds/vaping.ogg'], obj: null},
     };
     var urls = [resource_base + "texture/envmap3.png", resource_base + "texture/envmap3.png",
         resource_base + "texture/envmap.png", resource_base + "texture/envmap2.png",
@@ -135,7 +135,7 @@ var _InnokinDisrupterViewer = function () {
     var device_variables = {
         ohmz: 5,
         volt: 0,
-        watt: 270,
+        watt: 160,
         battery: 1000,
     }
     var device_status = "OFF";
@@ -146,7 +146,8 @@ var _InnokinDisrupterViewer = function () {
     //SMOKE PART
 
     var is_zoomed_to_oled = false;
-
+    var vaping_sound = null;
+    var vapingSoundVolume = 1;
     var playSmoke = null;
     var removeSmoke = null;
     var smoking = false;
@@ -236,40 +237,7 @@ var _InnokinDisrupterViewer = function () {
             cellout.chain(cellin);
             cellout.start();
         },
-//        zoom_to_oled: function () {
-//            var groupTween = new TWEEN.Tween(disrupter.rotation).to({
-//                z: -Math.PI / 2,
-//                x: Math.PI / 2,
-//                //y : Math.PI 
-//            }, 800).start();
-//            new TWEEN.Tween(disrupter.position).to({
-//                x: -60,
-//                z: -10,
-//                y: 30
-//
-//            }, 800).start();
-//            //animate camera
-//
-//            new TWEEN.Tween(camera.position).to({
-//                x: 12.75759306407929,
-//                y: 70.2878973429858,
-//                z: 113.82941043722535
-//            }, 900).start();
-//            new TWEEN.Tween(camera.rotation).to({
-//                x: -0.14576356565046156,
-//                y: -0.00023981239294456708,
-//                z: -0.00003520560129255281
-//            }, 900).start();
-//            var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-//                x: 12.792604357404935,
-//                y: 49.08249611245189,
-//                z: -30.61686786871972
-//            }, 900);
-//            ctw.onComplete(function () {
-//                orbitcntrl.update();
-//            });
-//            ctw.start();
-//        },
+
         zoom_to_oled_new: function () {
 
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -648,7 +616,6 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function _handleStepChange(evt) {
-        console.log(evt);
         if (reached_step4) {
             var data = parseInt(evt.target.getAttribute("data-step"));
             if (!isNaN(data)) {
@@ -810,7 +777,7 @@ var _InnokinDisrupterViewer = function () {
                             switch (picked.name) {
                                 case 'startbutton':
 
-                                    console.log("BIGBUTTONPRESS");
+//                                    console.log("BIGBUTTONPRESS");
                                     if (device_status == 'OFF') {
                                         startButtonClick();
                                     } else {
@@ -818,11 +785,11 @@ var _InnokinDisrupterViewer = function () {
                                     }
                                     break;
                                 case 'up_button':
-                                    console.log("UPBUTTON");
+//                                    console.log("UPBUTTON");
                                     minusButtonClick();
                                     break;
                                 case 'down_button':
-                                    console.log("DOWNBUTTON");
+//                                    console.log("DOWNBUTTON");
                                     plusButtonClick();
 
                                     break;
@@ -992,6 +959,27 @@ var _InnokinDisrupterViewer = function () {
             UI.wrapper.appendChild(loadingOverlay);
         }
     }
+
+    function showWarningBox() {
+        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
+//        warningBox = document.getElementById('WebglWarningBox');
+//        if (!warningBox) {
+//            warningBox = document.createElement('div');
+//            warningBox.className = 'warning-overlay';
+//            warningBox.id = 'WebglWarningBox';
+//            var warningMessage = document.createElement('p');
+//            warningMessage.className = 'loading-message-text';
+//            warningMessage.id = 'loading-message-text';
+//            warningMessage.textContent = "TOO HOT";
+//            var warningmessageDiv = document.createElement('div');
+//            warningmessageDiv.className = 'loading-message';
+//            warningmessageDiv.id = 'loading-message';
+//            warningmessageDiv.appendChild(warningMessage);
+//            warningBox.appendChild(warningmessageDiv);
+//            UI.wrapper.appendChild(warningBox);
+//        }
+    }
+
 
     function hideLoading() {
         loadingOverlay = document.getElementById('WebglLoadingOverlay');
@@ -1368,7 +1356,7 @@ var _InnokinDisrupterViewer = function () {
         current_step = 0;
         switchViewStep(tmp);
         animations.step[current_step]['in']();
-        console.log(current_choice);
+//        console.log(current_choice);
 //        console.clear();
     }
 
@@ -1472,6 +1460,17 @@ var _InnokinDisrupterViewer = function () {
         orbitcntrl.panUp(60);
         orbitcntrl.update();
         preloadFontForScreen();
+
+        var listener = new THREE.AudioListener();
+        vapingSound = new THREE.Audio(listener);
+        vapingSound.load(resource_base + 'sounds/vaping.ogg');
+        vapingSound.setRefDistance(1);
+        vapingSound.setVolume(0);
+        vapingSound.autoplay= true;
+        
+
+
+
         //add the lights
         var lightIntensity = 0.15;
         var coord_mul = 2;
@@ -1568,6 +1567,10 @@ var _InnokinDisrupterViewer = function () {
                 particleCount: wattage * 3 / 10,
             });
             particleGroup.addEmitter(emitter);
+
+            vapingSound.setVolume(vapingSoundVolume);
+            vapingSound.play();
+
             //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
             complete_device_group.add(particleGroup.mesh);
             smoking = true;
@@ -1595,7 +1598,7 @@ var _InnokinDisrupterViewer = function () {
 //PBC SCREEN LOGIC
 
     generalStartScreen = function () {
-        console.log(scene);
+//        console.log(scene);
         var small_screen_already_exists = scene.getObjectByName('smallScreen');
         if (!small_screen_already_exists) {
             screenDynamicTexture = new THREEx.DynamicTexture(400, 200);
@@ -1606,7 +1609,7 @@ var _InnokinDisrupterViewer = function () {
             ScreenPlane.name = 'smallScreen';
             groupMecanism = scene.getObjectByName('disrupter');
             if (groupMecanism) {
-                console.log("THERE IS A GRUPMECANISM");
+//                console.log("THERE IS A GRUPMECANISM");
                 groupMecanism.add(ScreenPlane);
             }
             ScreenPlane.position.x = -32.8; // DEPTH BIGGER IS INSIDE
@@ -1699,8 +1702,8 @@ var _InnokinDisrupterViewer = function () {
         var voltz = (device_variables.volt / 10).toString();
         var wattz = (device_variables.watt / 10).toString();
         var ohmz = (device_variables.ohmz / 10).toString();
-        console.log("VOLTZ " + device_variables.volt);
-        console.log("DisplayV : " + voltz);
+//        console.log("VOLTZ " + device_variables.volt);
+//        console.log("DisplayV : " + voltz);
         substringOfVolt = voltz.substring(0, 4);
         volt_ammount_display = substringOfVolt;
         watt_ammount_display = wattz;
@@ -1777,6 +1780,7 @@ var _InnokinDisrupterViewer = function () {
         }, 600);
         if (device_status === "ON") {
             startSmoking(device_variables.watt);
+           
         }
     }
 
@@ -1864,6 +1868,8 @@ var _InnokinDisrupterViewer = function () {
         clearTimeout(playSmoke);
         clearTimeout(removeSmoke);
         stopSmoking();
+        vapingSound.stop();
+
 
     }
 
@@ -1875,18 +1881,19 @@ var _InnokinDisrupterViewer = function () {
         //FORMULA USED IS :    W = V * V / R
         switch (device_variables.ohmz) {
             case 20:
-//                alert('YOU 2.0 OHM');
-
                 if (device_variables.watt < 285) {
                     voltage = device_variables.watt * device_variables.ohmz;
                     device_variables.volt = Math.sqrt(voltage) - 0.5;
                 } else {
                     device_variables.volt = 75;
+//                    showWarningBox();
                 }
-
                 break;
 
             case 5:
+                if (device_variables.watt > 350) {
+//                    showWarningBox();
+                }
                 voltage = device_variables.watt * device_variables.ohmz;
                 device_variables.volt = Math.sqrt(voltage);
                 break;
@@ -1909,15 +1916,6 @@ var _InnokinDisrupterViewer = function () {
         });
         existingSmallScreen.material = newPlaneMaterial;
     }
-
-//    function resetParticlesWithNewInfo() {
-//        if (smoking) {
-//            smoking = false;
-//            complete_device_group = scene.getObjectByName('disrupter').parent;
-//            complete_device_group.remove(particleGroup.mesh);
-//            startSmoking(device_variables.watt);
-//        }
-//    }
 
     function preloadFontForScreen() {
         //Temporarely create a screen with texture to load the font the first time. Auto-Remove after 2 seconds
@@ -1946,11 +1944,9 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function reset15secTimeout() {
-//        console.log("reset15sectimeout called");
         clearTimeout(fifteen_sec_timer);
         fifteen_sec_timer = setTimeout(function () {
             stopSmoking();
-//            console.log("reset15secTimeout STOPSMOKING");
         }, 15000);
     }
 
