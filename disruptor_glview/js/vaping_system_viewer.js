@@ -147,7 +147,7 @@ var _InnokinDisrupterViewer = function () {
 
     var is_zoomed_to_oled = false;
     var vaping_sound = null;
-    var vapingSoundVolume = 1;
+    var vapingSoundVolume = 10;
     var playSmoke = null;
     var removeSmoke = null;
     var smoking = false;
@@ -237,7 +237,6 @@ var _InnokinDisrupterViewer = function () {
             cellout.chain(cellin);
             cellout.start();
         },
-
         zoom_to_oled_new: function () {
 
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -1462,12 +1461,14 @@ var _InnokinDisrupterViewer = function () {
         preloadFontForScreen();
 
         var listener = new THREE.AudioListener();
+        camera.add(listener);
         vapingSound = new THREE.Audio(listener);
+        vapingSound.panner.coneOuterGain = 1;
         vapingSound.load(resource_base + 'sounds/vaping.ogg');
         vapingSound.setRefDistance(1);
         vapingSound.setVolume(0);
-        vapingSound.autoplay= true;
-        
+        vapingSound.autoplay = true;
+        vapingSound.updateMatrixWorld(0,0,0);
 
 
 
@@ -1780,7 +1781,7 @@ var _InnokinDisrupterViewer = function () {
         }, 600);
         if (device_status === "ON") {
             startSmoking(device_variables.watt);
-           
+
         }
     }
 
