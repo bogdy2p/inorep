@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = true;
+    var debug_mode = false;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay, warningBox;
     var vapingSound = null;
     var prev_picked = null;
@@ -34,6 +34,7 @@ var _InnokinDisrupterViewer = function () {
     };
     var step_buttons = [];
     var step4_tool_buttons = [];
+    var completed_buttons = [];
     var materials = {
         blue_battery: {color: 0x005BBB, shininess: 30, specular: 0x0093EF, metal: true, side: THREE.DoubleSide},
         whiteblue_battery: {color: 0x72DCD4, shininess: 30, specular: 0x91D7DD, metal: true, side: THREE.DoubleSide},
@@ -154,6 +155,9 @@ var _InnokinDisrupterViewer = function () {
     var ammount_of_ms_to_press = 100;
     var resetTimeout = null;
     var fifteen_sec_timer = null;
+    var configuration_complete = false;
+    var configuration_complete_timer = null;
+    var bypassed_device_start = false;
 //END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
@@ -638,6 +642,9 @@ var _InnokinDisrupterViewer = function () {
             case 'zoom-oled':
                 zoomOled();
                 break;
+            case 'completed':
+                completedButtonAction();
+                break;
             case 'change-mod-color':
                 var idx = parseInt(evt.target.getAttribute("data-coloridx"), 10);
                 if (!isNaN(idx)) {
@@ -979,6 +986,11 @@ var _InnokinDisrupterViewer = function () {
 //        }
     }
 
+    function showCompletedButton() {
+        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
+
+    }
+
 
     function hideLoading() {
         loadingOverlay = document.getElementById('WebglLoadingOverlay');
@@ -1045,6 +1057,19 @@ var _InnokinDisrupterViewer = function () {
                 }
                 step4_tool_buttons.push(tool_btn);
             }
+
+            //ADD THE COMPLETE BUTTON TO THE PAGE AT STEP 4
+            var step4_complete_btn = document.createElement('span');
+            step4_complete_btn.className = 'completed-button';
+            step4_complete_btn.id = 'completed-button';
+            step4_complete_btn.setAttribute('data-action', 'completed');
+            step4_complete_btn.innerHTML = '&nbsp;';
+            UI.wrapper.appendChild(step4_complete_btn);
+            for (var ei = 0; ei < evenst.length; ei++) {
+                step4_complete_btn.addEventListener(evenst[ei], _handleStepTools);
+            }
+            completed_buttons.push(step4_complete_btn);
+
 
             //add color swatches
             var csw_mod = document.createElement('span');
@@ -1356,7 +1381,7 @@ var _InnokinDisrupterViewer = function () {
         switchViewStep(tmp);
         animations.step[current_step]['in']();
 //        console.log(current_choice);
-//        console.clear();
+        console.clear();
     }
 
 
@@ -1468,7 +1493,7 @@ var _InnokinDisrupterViewer = function () {
         vapingSound.setRefDistance(1);
         vapingSound.setVolume(0);
         vapingSound.autoplay = true;
-        vapingSound.updateMatrixWorld(0,0,0);
+        vapingSound.updateMatrixWorld(0, 0, 0);
 
 
 
@@ -1580,7 +1605,9 @@ var _InnokinDisrupterViewer = function () {
 
             refreshDisruptorInformations();
             reset15secTimeout();
-
+            configuration_complete_timer = setTimeout(function () {
+                showConfigurationComplete();
+            }, 10000);
         }
 //        }
     }
@@ -1951,6 +1978,28 @@ var _InnokinDisrupterViewer = function () {
         }, 15000);
     }
 
+    function showConfigurationComplete() {
+        if (bypassed_device_start) {
+            if (!configuration_complete) {
+                console.log("CONFIG COMPLETE");
+                configuration_complete = true;
+
+
+                var completeButton = document.getElementById('completed-button');
+
+                console.log(completeButton);
+
+                completeButton.style.display = 'block';
+                completeButton.style.zIndex = 10;
+            }
+        } else {
+            bypassed_device_start = true;
+        }
+    }
+
+    function completedButtonAction() {
+        window.location = "http://www.innokin.com";
+    }
 
 };
 var InnokinDisrupterViewer = new _InnokinDisrupterViewer;
