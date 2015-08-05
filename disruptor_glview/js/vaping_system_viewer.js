@@ -1,6 +1,6 @@
 var _InnokinDisrupterViewer = function () {
 
-    var debug_mode = false;
+    var debug_mode = true;
     var scene, camera, renderer, particleGroup, emitter, clock, raycaster, cameraLight, orbitcntrl, disrupter_buttons = [], disrupter_groups = {}, current_pick_set, current_choice = {disrupter: null, innocell: null, coil: null}, disrupter, loadingOverlay;
     var prev_picked = null;
     var reached_step4 = debug_mode;
@@ -12,6 +12,7 @@ var _InnokinDisrupterViewer = function () {
     var sounds = {
         slide_in: {src: ['sounds/disrupter_lock.mp3', 'sounds/disrupter_lock.ogg'], obj: null},
         slide_out: {src: ['sounds/disrupter_unlock.mp3', 'sounds/disrupter_unlock.ogg'], obj: null},
+//        vaping: {src: ['sounds/vaping.mp3', 'sounds/vaping.ogg'], obj: null},
     };
     var urls = [resource_base + "texture/envmap3.png", resource_base + "texture/envmap3.png",
         resource_base + "texture/envmap.png", resource_base + "texture/envmap2.png",
@@ -134,7 +135,7 @@ var _InnokinDisrupterViewer = function () {
     var device_variables = {
         ohmz: 5,
         volt: 0,
-        watt: 120,
+        watt: 270,
         battery: 1000,
     }
     var device_status = "OFF";
@@ -1538,44 +1539,46 @@ var _InnokinDisrupterViewer = function () {
     };
 
     function startSmoking(wattage) {
-        if (!is_zoomed_to_oled) {
-//        zoomFullView();
-            filter = scene.getObjectByName('isub_coil02ohm');
-            complete_device_group = filter.parent;
-            if (!smoking) {
-                particleGroup = new SPE.Group({
-                    texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
-                    maxAge: 5,
-                    hasPerspective: true,
-                    colorize: true,
-                });
-                emitter = new SPE.Emitter({
+
+        //Uncomment to restrict smoking when zoomed to oled @ scen4
+//        if (!is_zoomed_to_oled) {
+
+        filter = scene.getObjectByName('isub_coil02ohm');
+        complete_device_group = filter.parent;
+        if (!smoking) {
+            particleGroup = new SPE.Group({
+                texture: THREE.ImageUtils.loadTexture(resource_base + "texture/smokeparticle.png"),
+                maxAge: 5,
+                hasPerspective: true,
+                colorize: true,
+            });
+            emitter = new SPE.Emitter({
 //                position: new THREE.Vector3(-22, 152, -3),
-                    position: new THREE.Vector3(-22, 152, -4),
-                    positionSpread: new THREE.Vector3(0, 0, 0),
-                    acceleration: new THREE.Vector3(0, 10, 00),
-                    accelerationSpread: new THREE.Vector3(0, 0, 0),
-                    velocity: new THREE.Vector3(0, 0, 0),
-                    velocitySpread: new THREE.Vector3(10, 0, 10),
+                position: new THREE.Vector3(-22, 152, -4),
+                positionSpread: new THREE.Vector3(0, 0, 0),
+                acceleration: new THREE.Vector3(0, 10, 00),
+                accelerationSpread: new THREE.Vector3(0, 0, 0),
+                velocity: new THREE.Vector3(0, 0, 0),
+                velocitySpread: new THREE.Vector3(10, 0, 10),
 //                velocitySpread: new THREE.Vector3(0, 0, 0),
-                    colorStart: new THREE.Color(0xFFFFFF),
-                    colorEnd: new THREE.Color(0xFFFFFF),
-                    sizeStart: 5,
-                    sizeEnd: 150,
-                    particleCount: wattage * 3 / 10,
-                });
-                particleGroup.addEmitter(emitter);
-                //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
-                complete_device_group.add(particleGroup.mesh);
-                smoking = true;
+                colorStart: new THREE.Color(0xFFFFFF),
+                colorEnd: new THREE.Color(0xFFFFFF),
+                sizeStart: 5,
+                sizeEnd: 150,
+                particleCount: wattage * 3 / 10,
+            });
+            particleGroup.addEmitter(emitter);
+            //FILTER SHOULD ADD THE PARTICLEGROUP EMITTER TO FOLLOW THE FILTER !!!
+            complete_device_group.add(particleGroup.mesh);
+            smoking = true;
 
-                calculateVoltageInformation();
+            calculateVoltageInformation();
 
-                refreshDisruptorInformations();
-                reset15secTimeout();
+            refreshDisruptorInformations();
+            reset15secTimeout();
 
-            }
         }
+//        }
     }
     function stopSmoking() {
         if (smoking) {
@@ -1866,27 +1869,28 @@ var _InnokinDisrupterViewer = function () {
 
     function calculateVoltageInformation() {
 
+
+
         var voltage = 0;
-
-
-        console.log(device_variables.ohmz);
+        //FORMULA USED IS :    W = V * V / R
         switch (device_variables.ohmz) {
             case 20:
 //                alert('YOU 2.0 OHM');
-                voltage = device_variables.watt / device_variables.ohmz;
-                device_variables.volt = voltage * 2.5;
+
+                if (device_variables.watt < 285) {
+                    voltage = device_variables.watt * device_variables.ohmz;
+                    device_variables.volt = Math.sqrt(voltage) - 0.5;
+                } else {
+                    device_variables.volt = 75;
+                }
+
                 break;
 
             case 5:
-//                alert('YOU 0.5 OHM');
-                voltage = device_variables.watt / device_variables.ohmz;
-//                console.log(voltage);
-                device_variables.volt = voltage * 0.5;
+                voltage = device_variables.watt * device_variables.ohmz;
+                device_variables.volt = Math.sqrt(voltage);
                 break;
         }
-
-
-
     }
 
     function resetVoltageInformation() {
