@@ -7,6 +7,12 @@ var _InnokinDisrupterViewer = function () {
     var reached_step4 = debug_mode;
     var remainingToLoad = 0;
     var totalToLoad = 0;
+
+    var loadingMessageTexts = [
+        'Innokin Distrupter 50W & InnokinCell', 'Choose Your Combo !', 'Please wait a moment. Thank you!', 'Loading...'
+    ];
+
+
     var loadingMessageText = "Loading: Innokin Distrupter 50W & InnokinCell - Choose Your Combo ! Please wait a moment. Thank you!";
 
     var resource_base = './disruptor_glview/resources/';
@@ -946,14 +952,7 @@ var _InnokinDisrupterViewer = function () {
             loadingOverlay = document.createElement('div');
             loadingOverlay.className = 'loading-overlay';
             loadingOverlay.id = 'WebglLoadingOverlay';
-            var messageParagraph = document.createElement('p');
-            messageParagraph.className = 'loading-message-text';
-            messageParagraph.id = 'loading-message-text';
-            messageParagraph.textContent = loadingMessageText;
-            var messageDiv = document.createElement('div');
-            messageDiv.className = 'loading-message';
-            messageDiv.id = 'loading-message';
-            messageDiv.appendChild(messageParagraph);
+
             var progress = document.createElement('div');
             progress.className = 'progress-bar';
             var indicator = document.createElement('div');
@@ -962,8 +961,20 @@ var _InnokinDisrupterViewer = function () {
             indicator.style.width = '0';
             progress.appendChild(indicator);
             loadingOverlay.appendChild(progress);
+            var messageDiv = document.createElement('div');
+            messageDiv.className = 'loading-message-div';
+            messageDiv.id = 'loading-message-div';
+            
             loadingOverlay.appendChild(messageDiv);
             UI.wrapper.appendChild(loadingOverlay);
+
+            for (i = 0; i < loadingMessageTexts.length; i++) {
+                var messageParagraph = document.createElement('span');
+                messageParagraph.className = 'loading-message-text';
+                messageParagraph.id = 'message-text-span-'+i;
+                messageParagraph.textContent = loadingMessageTexts[i];
+                messageDiv.appendChild(messageParagraph);
+            }
         }
     }
 

@@ -68,22 +68,43 @@
     z-index: 100;
 }
 
-.disrupter-view-wrapper .loading-overlay .loading-message {
-    width: 30%;
+.disrupter-view-wrapper .loading-overlay .loading-message-div {
+    width: 50%;
     top: 30%;
-    background: slategrey;
     color: white;
     text-align: center; 
     position: relative;
     margin: -26px auto;
     z-index: 200;
+     
 }
+.loading-message-text{
+     display:block;
+}
+#message-text-span-0{
+    color:red;
+    font-weight: bold;
+    font-size: 24px;
+}
+#message-text-span-1{
+    font-weight: bold;
+    color: #0099FF;
+    font-size: 22px;
+}
+#message-text-span-2{
+    font-size: 18px;
+}
+#message-text-span-3{
+    font-size: 18px;
+}
+
+
 
 .disrupter-view-wrapper .loading-overlay .progress-bar{
     width: 50%;
     border: 1px solid #FFF;
     margin: -2px auto;
-    top: 50%;
+    top: 70%;
     position: relative;
 }
 .disrupter-view-wrapper .loading-overlay .progress-bar .progress-indicator{
