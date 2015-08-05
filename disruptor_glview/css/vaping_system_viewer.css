@@ -207,8 +207,8 @@
 }
 
 .disrupter-view-wrapper .completed-button{
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
     display: block;
     position: absolute;
     z-index: -1;

@@ -964,14 +964,14 @@ var _InnokinDisrupterViewer = function () {
             var messageDiv = document.createElement('div');
             messageDiv.className = 'loading-message-div';
             messageDiv.id = 'loading-message-div';
-            
+
             loadingOverlay.appendChild(messageDiv);
             UI.wrapper.appendChild(loadingOverlay);
 
             for (i = 0; i < loadingMessageTexts.length; i++) {
                 var messageParagraph = document.createElement('span');
                 messageParagraph.className = 'loading-message-text';
-                messageParagraph.id = 'message-text-span-'+i;
+                messageParagraph.id = 'message-text-span-' + i;
                 messageParagraph.textContent = loadingMessageTexts[i];
                 messageDiv.appendChild(messageParagraph);
             }
@@ -997,11 +997,11 @@ var _InnokinDisrupterViewer = function () {
 //            UI.wrapper.appendChild(warningBox);
 //        }
     }
-
-    function showCompletedButton() {
-        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
-
-    }
+//
+//    function showCompletedButton() {
+//        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
+//
+//    }
 
 
     function hideLoading() {
@@ -1352,6 +1352,7 @@ var _InnokinDisrupterViewer = function () {
                         steps[current_step].clones[ci].visible = true;
                     }
                     current_pick_set = steps[current_step].clones;
+
                     break;
                 case 4:
                     disrupter_groups['innocell'].position.y = 0;
@@ -1425,6 +1426,7 @@ var _InnokinDisrupterViewer = function () {
         } else {
             switchViewStep(newstep);
         }
+        console.clear();
     }
 
     function zoomOled() {
@@ -1572,6 +1574,7 @@ var _InnokinDisrupterViewer = function () {
         return true;
     };
     this.step = function (newstep) {
+        
         setStep(newstep)
     };
 
@@ -1915,8 +1918,6 @@ var _InnokinDisrupterViewer = function () {
 
     function calculateVoltageInformation() {
 
-
-
         var voltage = 0;
         //FORMULA USED IS :    W = V * V / R
         switch (device_variables.ohmz) {
@@ -1993,14 +1994,9 @@ var _InnokinDisrupterViewer = function () {
     function showConfigurationComplete() {
         if (bypassed_device_start) {
             if (!configuration_complete) {
-                console.log("CONFIG COMPLETE");
+//                console.log("CONFIG COMPLETE");
                 configuration_complete = true;
-
-
                 var completeButton = document.getElementById('completed-button');
-
-                console.log(completeButton);
-
                 completeButton.style.display = 'block';
                 completeButton.style.zIndex = 10;
             }
