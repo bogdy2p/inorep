@@ -158,6 +158,7 @@ var _InnokinDisrupterViewer = function () {
     var configuration_complete = false;
     var configuration_complete_timer = null;
     var bypassed_device_start = false;
+    var redirectUrlAfterCompleted = "http://www.innokin.com";
 //END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
@@ -1998,7 +1999,8 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function completedButtonAction() {
-        window.location = "http://www.innokin.com";
+//        window.location = redirectUrlAfterCompleted;      //REDIRECT
+        window.open(redirectUrlAfterCompleted, "_blank");   //OPEN IN NEW TAB
     }
 
 };
