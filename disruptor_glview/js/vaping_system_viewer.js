@@ -9,9 +9,8 @@ var _InnokinDisrupterViewer = function () {
     var totalToLoad = 0;
 
     var loadingMessageTexts = [
-        'Innokin Distrupter 50W & InnokinCell', 'Choose Your Combo !', 'Please wait a moment. Thank you!', 'Loading...'
+        'Innokin Disrupter 50W & InnokinCell', 'Choose Your Combo !', 'Please wait a moment. Thank you!', 'Loading...'
     ];
-
 
     var loadingMessageText = "Loading: Innokin Distrupter 50W & InnokinCell - Choose Your Combo ! Please wait a moment. Thank you!";
 
@@ -165,6 +164,7 @@ var _InnokinDisrupterViewer = function () {
     var configuration_complete_timer = null;
     var bypassed_device_start = false;
     var redirectUrlAfterCompleted = "http://www.innokin.com";
+    var removeWarningTimeout = null;
 //END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
@@ -269,6 +269,7 @@ var _InnokinDisrupterViewer = function () {
             is_zoomed_to_oled = true;
         },
         zoom_to_fullview: function () {
+            var camera_mode_boti = false;
             var zoomAmountModifier = 1.3;
 
             var groupTween = new TWEEN.Tween(disrupter.rotation).to({
@@ -282,22 +283,51 @@ var _InnokinDisrupterViewer = function () {
                 y: 0
 
             }, 800).start();
-            //animate camera
-            new TWEEN.Tween(camera.position).to({
-                x: -144.20119763765334 * zoomAmountModifier,
-                y: 111.2972966087502 * zoomAmountModifier,
-                z: 121.55749190834881 * zoomAmountModifier
-            }, 900).start();
-            new TWEEN.Tween(camera.rotation).to({
-                x: -0.2854704053759189,
-                y: -0.8427679017865717,
-                z: -0.2156764559473396
-            }, 900).start();
-            var ctw = new TWEEN.Tween(orbitcntrl.center).to({
-                x: 11.859650548162842 * zoomAmountModifier,
-                y: 72.12312221743433 * zoomAmountModifier,
-                z: -11.921155841890096 * zoomAmountModifier
-            }, 900);
+            if (camera_mode_boti) {
+                //animate camera
+                new TWEEN.Tween(camera.position).to({
+                    x: -144.20119763765334 * zoomAmountModifier,
+                    y: 111.2972966087502 * zoomAmountModifier,
+                    z: 121.55749190834881 * zoomAmountModifier
+                }, 900).start();
+
+
+                new TWEEN.Tween(camera.rotation).to({
+                    x: -0.2854704053759189,
+                    y: -0.8427679017865717,
+                    z: -0.2156764559473396
+                }, 900).start();
+                var ctw = new TWEEN.Tween(orbitcntrl.center).to({
+                    x: 11.859650548162842 * zoomAmountModifier,
+                    y: 72.12312221743433 * zoomAmountModifier,
+                    z: -11.921155841890096 * zoomAmountModifier
+                }, 900);
+            } else {
+                //Camera Moved Up
+                new TWEEN.Tween(camera.position).to({
+                    x: -162.89341428011286,
+                    y: 77.50758564332119,
+                    z: 106.12346383427874
+                }, 900).start();
+                new TWEEN.Tween(camera.rotation).to({
+                    x: -0.17451959700297856,
+                    y: -0.8632528487934686,
+                    z: -0.13319779834142856
+                }, 900).start();
+                var ctw = new TWEEN.Tween(orbitcntrl.center).to({
+                    x: -3.0760860807863835,
+                    y: 53.77403961387587,
+                    z: -28.486663090380713
+                }, 900);
+//                T…E.Vector3 {x: -162.89341428011286, y: 77.50758564332119, z: 106.12346383427874}
+//                 T…E.Euler {_x: -0.17451959700297856, _y: -0.8632528487934686, _z: -0.13319779834142856, _order: "XYZ"}
+//                  T…E.Vector3 {x: -3.0760860807863835, y: 53.77403961387587, z: -28.486663090380713}
+//                   T…E.Vector3 {x: -3.0760860807863835, y: 53.77403961387587, z: -28.486663090380713}
+            }
+
+
+
+
             ctw.onComplete(function () {
                 orbitcntrl.update();
             });
@@ -978,30 +1008,71 @@ var _InnokinDisrupterViewer = function () {
         }
     }
 
-    function showWarningBox() {
-        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
-//        warningBox = document.getElementById('WebglWarningBox');
-//        if (!warningBox) {
-//            warningBox = document.createElement('div');
-//            warningBox.className = 'warning-overlay';
-//            warningBox.id = 'WebglWarningBox';
-//            var warningMessage = document.createElement('p');
-//            warningMessage.className = 'loading-message-text';
-//            warningMessage.id = 'loading-message-text';
-//            warningMessage.textContent = "TOO HOT";
-//            var warningmessageDiv = document.createElement('div');
-//            warningmessageDiv.className = 'loading-message';
-//            warningmessageDiv.id = 'loading-message';
-//            warningmessageDiv.appendChild(warningMessage);
-//            warningBox.appendChild(warningmessageDiv);
-//            UI.wrapper.appendChild(warningBox);
-//        }
+    function removeWarningBox() {
+        var warning_box_exists = document.getElementById('warningbox-button');
+        if (warning_box_exists) {
+            UI.wrapper.removeChild(warning_box_exists);
+        }
     }
-//
-//    function showCompletedButton() {
-//        console.log("THIS FUNCTION IS DISABLED MOMENTARELY / Should be implemented");
-//
-//    }
+
+    function showWarningBox() {
+        clearTimeout(removeWarningTimeout);
+        var removeWarningTimeoutAmmount = 3000;
+        var colour = null;
+        var text = null;
+        var red = "#FF0000";
+        var green = "#00FF00";
+        var blue = "#0000FF";
+        var yellow = "#FFFF00";
+        var lowText = "Too Low";
+        var optimalText = "Optimal";
+        var hotText = "Too Hot";
+        switch (device_variables.ohmz) {
+            case 5:
+                if (device_variables.watt <= 180) {
+                    colour = yellow;
+                    text = lowText;
+                } else if (device_variables.watt <= 350) {
+                    colour = green;
+                    text = optimalText;
+                } else {
+                    colour = red;
+                    text = hotText;
+                }
+                break;
+            case 20:
+                if (device_variables.watt <= 80) {
+                    colour = yellow;
+                    text = lowText;
+                } else if (device_variables.watt <= 150) {
+                    colour = green;
+                    text = optimalText;
+                } else {
+                    colour = red;
+                    text = hotText;
+                }
+                break;
+        }
+        var warning_box_exists = document.getElementById('warningbox-button');
+        if (!warning_box_exists) {
+            var warningbox_btn = document.createElement('span');
+            warningbox_btn.className = 'warningbox-button';
+            warningbox_btn.id = 'warningbox-button';
+            warningbox_btn.innerHTML = text;
+            warningbox_btn.style.backgroundColor = colour;
+            UI.wrapper.appendChild(warningbox_btn);
+            removeWarningTimeout = setTimeout(function () {
+                removeWarningBox();
+            }, removeWarningTimeoutAmmount);
+
+        } else {
+            warning_box_exists.style.backgroundColor = colour;
+            warning_box_exists.innerHTML = text;
+            removeWarningTimeout = setTimeout(function () {
+                removeWarningBox();
+            }, removeWarningTimeoutAmmount);
+        }
+    }
 
 
     function hideLoading() {
@@ -1313,7 +1384,6 @@ var _InnokinDisrupterViewer = function () {
                     orbitcntrl.minPolarAngle = 0;
                     orbitcntrl.update();
                     orbitcntrl.enabled = false;
-//                    orbitcntrl.noPan = false;
             }
         } else {
             orbitcntrl.minPolarAngle = 0;
@@ -1352,7 +1422,6 @@ var _InnokinDisrupterViewer = function () {
                         steps[current_step].clones[ci].visible = true;
                     }
                     current_pick_set = steps[current_step].clones;
-
                     break;
                 case 4:
                     disrupter_groups['innocell'].position.y = 0;
@@ -1362,6 +1431,7 @@ var _InnokinDisrupterViewer = function () {
                     disrupter_groups['disrupter'].visible = true;
                     disrupter_groups['isub_coil02ohm'].visible = true;
                     current_pick_set = disrupter_buttons;
+                    InnokinDisrupterViewer.displayStartInformation();
             }
             for (var sbi = 0; sbi < step_buttons.length; sbi++) {
                 step_buttons[sbi].className = step_buttons[sbi].className.replace(/active/g, ' ').replace(/\s+/, ' ');
@@ -1574,7 +1644,7 @@ var _InnokinDisrupterViewer = function () {
         return true;
     };
     this.step = function (newstep) {
-        
+
         setStep(newstep)
     };
 
@@ -1709,7 +1779,7 @@ var _InnokinDisrupterViewer = function () {
         generalStartScreen();
         screenDynamicTexture.drawText('OFF', 150, 90, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
         screenDynamicTexture.drawText('click 3x on', 45, 145, '#FDFDFD', (0.2 * 256) + "px DisrupterLCDFont");
-        delayStopScreen(1000);
+//        delayStopScreen(1000);
     }
 
     function drawAllFourOnTexture(screenDynamicTexture, mode) {
@@ -1859,6 +1929,7 @@ var _InnokinDisrupterViewer = function () {
                     }
                     device_variables.volt.toFixed(2);
                     refreshDisruptorInformations();
+                    showWarningBox();
                     break;
                 case 'watt':
                     if (device_variables.watt < 496) {
@@ -1867,6 +1938,7 @@ var _InnokinDisrupterViewer = function () {
                         device_variables.watt = 60;
                     }
                     refreshDisruptorInformations();
+                    showWarningBox();
                     break;
             }
         }
@@ -1878,23 +1950,22 @@ var _InnokinDisrupterViewer = function () {
         if (device_status === "ON") {
             switch (device_state) {
                 case 'volt':
-                    console.log('volt');
-
                     if (device_variables.volt > 31) {
                         device_variables.volt -= 1;
                     } else {
                         device_variables.volt = 75;
                     }
                     refreshDisruptorInformations();
+                    showWarningBox();
                     break;
                 case 'watt':
-                    console.log('watt');
                     if (device_variables.watt > 64) {
                         device_variables.watt -= 5;
                     } else {
                         device_variables.watt = 500;
                     }
                     refreshDisruptorInformations();
+                    showWarningBox();
                     break;
             }
         }
@@ -1927,13 +1998,13 @@ var _InnokinDisrupterViewer = function () {
                     device_variables.volt = Math.sqrt(voltage) - 0.5;
                 } else {
                     device_variables.volt = 75;
-//                    showWarningBox();
+
                 }
                 break;
 
             case 5:
                 if (device_variables.watt > 350) {
-//                    showWarningBox();
+
                 }
                 voltage = device_variables.watt * device_variables.ohmz;
                 device_variables.volt = Math.sqrt(voltage);

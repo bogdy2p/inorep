@@ -225,6 +225,28 @@
     background-image: url('img/completed-button.png');
 }
 
+.disrupter-view-wrapper .warningbox-button{
+    width: 100px;
+    height: 60px;
+    display: block;
+    position: absolute;
+    z-index: 10;
+    background-color: rgba(255,255,255,0.5);
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.5);
+    background-position: center center;
+    background-repeat: no-repeat;
+    user-select: none;
+    cursor: pointer;
+    top: 20px;
+    left: 30px;
+    background-color: greenyellow;
+    text-align: center;
+    line-height: 60px;
+    font-weight: bold;
+    opacity: 0.7;
+}
 
 .disrupter-view-wrapper .viewer-color-swatches{
     position: absolute;
