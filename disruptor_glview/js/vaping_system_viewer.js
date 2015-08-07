@@ -148,7 +148,6 @@ var _InnokinDisrupterViewer = function () {
     var device_state = 'watt';
     var startButtonCounter = 0;
     var startButtonCounter2 = 0;
-
     //SMOKE PART
 
     var is_zoomed_to_oled = false;
@@ -165,6 +164,8 @@ var _InnokinDisrupterViewer = function () {
     var bypassed_device_start = false;
     var redirectUrlAfterCompleted = "http://www.innokin.com";
     var removeWarningTimeout = null;
+    var warningBoxesHaveTimeout = false;
+    var removeWarningTimeoutAmmount = 3000;
 //END SMOKE PART
     ///////////////////////////////////////////////////////////////////////////
     window.requestAnimationFrame = (function ()
@@ -1016,8 +1017,11 @@ var _InnokinDisrupterViewer = function () {
     }
 
     function showWarningBox() {
-        clearTimeout(removeWarningTimeout);
-        var removeWarningTimeoutAmmount = 3000;
+
+        if (warningBoxesHaveTimeout) {
+            clearTimeout(removeWarningTimeout);
+        }
+
         var colour = null;
         var text = null;
         var red = "#FF0000";
@@ -1061,16 +1065,20 @@ var _InnokinDisrupterViewer = function () {
             warningbox_btn.innerHTML = text;
             warningbox_btn.style.backgroundColor = colour;
             UI.wrapper.appendChild(warningbox_btn);
-            removeWarningTimeout = setTimeout(function () {
-                removeWarningBox();
-            }, removeWarningTimeoutAmmount);
+            if (warningBoxesHaveTimeout) {
+                removeWarningTimeout = setTimeout(function () {
+                    removeWarningBox();
+                }, removeWarningTimeoutAmmount);
+            }
 
         } else {
             warning_box_exists.style.backgroundColor = colour;
             warning_box_exists.innerHTML = text;
-            removeWarningTimeout = setTimeout(function () {
-                removeWarningBox();
-            }, removeWarningTimeoutAmmount);
+            if (warningBoxesHaveTimeout) {
+                removeWarningTimeout = setTimeout(function () {
+                    removeWarningBox();
+                }, removeWarningTimeoutAmmount);
+            }
         }
     }
 
