@@ -805,6 +805,7 @@ var _InnokinDisrupterViewer = function () {
                                     //If device is on ,refresh the screen @ this moment
                                     if (device_status === "ON") {
                                         refreshDisruptorInformations();
+                                        showWarningBox();
                                     }
                                     reached_step4 = true;
                                     setStep(next_step);
