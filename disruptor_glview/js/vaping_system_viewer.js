@@ -1472,7 +1472,7 @@ var _InnokinDisrupterViewer = function () {
         current_step = 0;
         switchViewStep(tmp);
         animations.step[current_step]['in']();
-//        console.log(current_choice);
+
         console.clear();
     }
 
@@ -1504,6 +1504,9 @@ var _InnokinDisrupterViewer = function () {
             });
         } else {
             switchViewStep(newstep);
+        }
+        if(newstep != 4){
+            removeWarningBox();
         }
         console.clear();
     }
@@ -1653,7 +1656,7 @@ var _InnokinDisrupterViewer = function () {
         return true;
     };
     this.step = function (newstep) {
-
+        console.log(newstep);
         setStep(newstep)
     };
 
